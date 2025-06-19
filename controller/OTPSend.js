@@ -1,5 +1,5 @@
 import { poolPromise, sql } from "../db.js";
-import sendMail from "../utils/sendMail.js";
+import sendMail from "../Utils/SendMail.js";
 import bcrypt from "bcryptjs";
 export const sendOTP = async (req, res) => {
     const { email } = req.body;
