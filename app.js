@@ -3,7 +3,7 @@ import express from "express";
 import PdfPrinter from "pdfmake";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import { poolPromise } from "../db.js"; // adjust path if needed
+import { poolPromise } from "./db.js"; // adjust path if needed
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
