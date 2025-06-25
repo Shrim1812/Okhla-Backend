@@ -6,6 +6,23 @@ import { fileURLToPath } from "url";
 import { poolPromise } from "./db.js"; // adjust path if needed
 import receiptRoutes from "./controller/receipt.js"; // ✅ Corrected path
 import bodyParser from "body-parser";
+import cors from "cors";
+
+const allowedOrigins = [
+  "https://www.oppa.co.in", // ✅ your production frontend
+  "http://localhost:3000"   // optional: local testing
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
