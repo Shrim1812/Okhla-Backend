@@ -7,11 +7,13 @@ import { fileURLToPath } from "url";
 import PdfPrinter from "pdfmake";
 import { poolPromise } from "./db.js";
 import MemberRouter from "./Router/MemberForm.js"; // ✅ Login route
+import receiptRoutes from './controller/receipt.js';
+
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
+app.use('/receipt', receiptRoutes);
 // ✅ Fonts for PDF
 const fonts = {
   Roboto: {
@@ -25,13 +27,13 @@ const printer = new PdfPrinter(fonts);
 
 // ✅ Middleware
 app.use(bodyParser.json());
-app.use(cors({
-  origin: [
-    "https://www.oppa.co.in",
-    "http://localhost:3000"
-  ],
+const corsOptions = {
+  origin: 'https://www.oppa.co.in',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
 
 // ✅ Login route
 app.use("/Ohkla", MemberRouter);
