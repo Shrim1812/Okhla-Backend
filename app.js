@@ -185,10 +185,11 @@ html = html.replace('{{ChequeReceiveOnSection}}', chequeReceiveOnHtml);
 
 
 const browser = await puppeteer.launch({
-  args: chrome.args,
-  executablePath: await chrome.executablePath || '/usr/bin/chromium-browser',
-  headless: true
+  args: chromium.args,
+  executablePath: await chromium.executablePath || '/usr/bin/chromium-browser',
+  headless: chromium.headless,
 });
+
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
     const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
