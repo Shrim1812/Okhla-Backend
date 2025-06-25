@@ -1,19 +1,35 @@
-// Import modules
+// app.js
 import express from "express";
 import cors from "cors";
-import PdfPrinter from "pdfmake";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import { poolPromise } from "./db.js"; // adjust path if needed
-import receiptRoutes from "./controller/receipt.js"; // ✅ Corrected path
+import { poolPromise } from "./db.js";
 import bodyParser from "body-parser";
-
+import PdfPrinter from "pdfmake";
 
 const app = express();
-app.use("/Ohkla", loginRoutes); 
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Font setup for pdfmake
+const fonts = {
+  Roboto: {
+    normal: path.join(__dirname, "Fonts", "Roboto-Regular.ttf"),
+    bold: path.join(__dirname, "Fonts", "Roboto-Medium.ttf"),
+    italics: path.join(__dirname, "Fonts", "Roboto-Italic.ttf"),
+    bolditalics: path.join(__dirname, "Fonts", "Roboto-MediumItalic.ttf"),
+  },
+};
+
+const printer = new PdfPrinter(fonts);
+
+// Middleware
+app.use(bodyParser.json());
+
 const allowedOrigins = [
-  "https://www.oppa.co.in", // ✅ your production frontend
-  "http://localhost:3000"   // optional: local testing
+  "https://www.oppa.co.in",
+  "http://localhost:3000",
 ];
 
 app.use(cors({
@@ -27,24 +43,8 @@ app.use(cors({
   credentials: true,
 }));
 
-const router = express.Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Font setup for pdfmake
-const fonts = {
-  Roboto: {
-    normal: path.join(__dirname, "..", "Fonts", "Roboto-Regular.ttf"),
-    bold: path.join(__dirname, "..", "Fonts", "Roboto-Medium.ttf"),
-    italics: path.join(__dirname, "..", "Fonts", "Roboto-Italic.ttf"),
-    bolditalics: path.join(__dirname, "..", "Fonts", "Roboto-MediumItalic.ttf"),
-  },
-};
-
-const printer = new PdfPrinter(fonts);
-
-// GET receipt PDF by receipt number
-router.get("/Ohkla/report/receipt", async (req, res) => {
+// ✅ MAIN PDF ROUTE (working)
+app.get("/Ohkla/report/receipt", async (req, res) => {
   try {
     const { receiptNo } = req.query;
 
@@ -112,16 +112,8 @@ router.get("/Ohkla/report/receipt", async (req, res) => {
   }
 });
 
-// Middleware
-app.use(bodyParser.json());
-
-// Routes
-app.use(receiptRoutes);
-
-// ✅ Required by Render.com
+// Server start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✅ Server is running on port ${PORT}`);
 });
-
-export default router;
