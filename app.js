@@ -5,7 +5,7 @@ import bodyParser from 'body-parser';
 import Member from './Router/MemberForm.js';
 import fs from 'fs';
 import path from 'path';
-import puppeteer from 'puppeteer';
+import chromium from 'chrome-aws-lambda';
 import otpRouter from './Router/MemberForm.js'; 
 import { sql, poolPromise } from './db.js';
 
@@ -184,8 +184,12 @@ const chequeReceiveOnHtml = data.ChequeReceiveOn
 html = html.replace('{{ChequeReceiveOnSection}}', chequeReceiveOnHtml);
 
 
-
-    const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+const browser = await chromium.puppeteer.launch({
+  args: chromium.args,
+  defaultViewport: chromium.defaultViewport,
+  executablePath: await chromium.executablePath,
+  headless: chromium.headless,
+});
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
     const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
