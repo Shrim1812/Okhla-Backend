@@ -26,7 +26,7 @@ import express from 'express';
 import { createNewMember, getAllMembers, updateMember } from '../controller/NewMemberForm.js';
 import { getCompany, getMemberById, addPayment, getReceipts, getRegistrationFee, getSummaryByCompanyYear, ExtraDetail, getMemberAndPaymentSummaryById, getAllOtherPayments, getMemberAndPaymentById, addYear, getYear, getYearlySummary } from '../controller/PaymentSummary.js';
 
-import { ReceipPDF } from '../controller/receipt.js'
+//import { ReceipPDF } from '../controller/receipt.js'
 import { getAnnualPayments, insertAnnualPayments, addNewYearAndInsertForAllMember, getYearRange, updateAnnualPayment, ReceiptOfPayment, getReceiptOfPayment, YearlyPaymentList } from '../controller/AnnualTable.js';
 import { getCompanies, getYears, getDashboardData, getDashboardMultiYearData, getOtherPayments } from '../controller/Deshboard.js';
 import { importExcelToDB } from "../helper/ImportExcelToDB.js";
@@ -50,7 +50,7 @@ router.post("/addPayment", addPayment);
 router.get("/getReceipts", getReceipts);
 
 
-router.get("/receipt-pdf", ReceipPDF);
+//router.get("/receipt-pdf", ReceipPDF);
 router.get("/DuePayment", getSummaryByCompanyYear);
 router.get('/getMemberAndPaymentSummaryById/:id/:year', getMemberAndPaymentById);
 router.post('/addYear', addYear);
