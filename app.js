@@ -1,5 +1,4 @@
 import express from 'express';
-import puppeteer from 'puppeteer';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import Member from './Router/MemberForm.js';
@@ -183,15 +182,15 @@ const chequeReceiveOnHtml = data.ChequeReceiveOn
 html = html.replace('{{ChequeReceiveOnSection}}', chequeReceiveOnHtml);
 
 
-const browser = await puppeteer.launch({
-  headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox']
-});
+//const browser = await puppeteer.launch({
+  //headless: true,
+ // args: ['--no-sandbox', '--disable-setuid-sandbox']
+//});
 
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
-    await browser.close();
+  //  const page = await browser.newPage();
+    //await page.setContent(html, { waitUntil: 'networkidle0' });
+    //const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+    //await browser.close();
 
     res.set({
       'Content-Type': 'application/pdf',
