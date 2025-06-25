@@ -10,6 +10,7 @@ import bodyParser from "body-parser";
 
 
 const app = express();
+app.use("/Ohkla", loginRoutes); 
 const allowedOrigins = [
   "https://www.oppa.co.in", // ✅ your production frontend
   "http://localhost:3000"   // optional: local testing
