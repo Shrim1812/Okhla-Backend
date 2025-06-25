@@ -1,11 +1,10 @@
 import express from 'express';
-import puppeteer from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import Member from './Router/MemberForm.js';
 import fs from 'fs';
 import path from 'path';
-import chromium from 'chrome-aws-lambda';
 import otpRouter from './Router/MemberForm.js'; 
 import { sql, poolPromise } from './db.js';
 
@@ -185,9 +184,8 @@ html = html.replace('{{ChequeReceiveOnSection}}', chequeReceiveOnHtml);
 
 
 const browser = await puppeteer.launch({
-  args: chromium.args,
-  executablePath: await chromium.executablePath || '/usr/bin/chromium-browser',
-  headless: chromium.headless,
+  headless: true,
+  args: ['--no-sandbox', '--disable-setuid-sandbox']
 });
 
     const page = await browser.newPage();
