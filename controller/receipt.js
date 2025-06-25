@@ -1,4 +1,6 @@
-// Import necessary modules
+// controller/receipt.js
+
+import express from "express";
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
@@ -20,8 +22,9 @@ const Fonts = {
 };
 
 const printer = new PdfPrinter(Fonts);
+const router = express.Router();
 
-export const ReceipPDF = async (req, res) => {
+router.post("/generate-receipt", async (req, res) => {
   try {
     const pool = await poolPromise;
 
@@ -103,4 +106,7 @@ export const ReceipPDF = async (req, res) => {
     console.error("PDF generation error:", err);
     res.status(500).send("Error generating PDF report");
   }
-};
+});
+
+export default router;
+
