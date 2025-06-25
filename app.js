@@ -1,210 +1,93 @@
-import express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import Member from './Router/MemberForm.js';
-import fs from 'fs';
-import path from 'path';
-import otpRouter from './Router/MemberForm.js'; 
-import { sql, poolPromise } from './db.js';
+// Import modules
+import express from "express";
+import PdfPrinter from "pdfmake";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+import { poolPromise } from "../db.js"; // adjust path if needed
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extends: true }));
-app.use("/otpRouter", otpRouter);
+const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-app.use("/Ohkla", Member);
-app.use((req, res, next) => {
-    console.log(`Incoming request: ${req.method} ${req.originalUrl}`);
-    next();
-});
-
-// async function getReceiptData(receiptNo) {
-//   const pool = await poolPromise;
-
-//   const query = `
-//     SELECT 
-//       yps.ReceiptNumber,
-//       CONVERT(varchar, yps.ReceiptDate, 23) AS ReceiptDate,
-//       m.CompanyName,
-//       yps.AmountPaid AS ReceivedAmount,
-//       yps.PaymentType,
-//       yps.PaymentYear,
-//       m.MemberName,
-//       op.Remark, -- Join from OtherPayments
-//       CASE 
-//         WHEN yps.PaymentType = 'Cheque' THEN CONCAT('Cheque - ', yps.ChequeNumber)
-//         ELSE yps.PaymentType
-//       END AS DisplayPaymentType
-//     FROM YearlyPaymentSummary yps
-//     JOIN Members m ON yps.MembershipID = m.MembershipID
-//     LEFT JOIN OtherPayments op ON yps.ReceiptNumber = op.ReceiptNumber -- Add LEFT JOIN
-//     WHERE yps.ReceiptNumber = @ReceiptNo
-//   `;
-
-//   const result = await pool
-//     .request()
-//     .input('ReceiptNo', sql.VarChar, receiptNo)
-//     .query(query);
-
-//   return result.recordset.length > 0 ? result.recordset[0] : null;
-// }
-
-
-
-
-async function getReceiptData(receiptNo) {
-  const pool = await poolPromise;
-
-  // First: Try to find in YearlyPaymentSummary
-  const yearlyQuery = `
-    SELECT 
-      yps.ReceiptNumber,
-      CONVERT(varchar, yps.ReceiptDate, 23) AS ReceiptDate,
-      m.CompanyName,
-      yps.AmountPaid AS ReceivedAmount,
-      yps.PaymentType,
-      yps.PaymentYear,
-       yps.ChequeNumber,
-       yps.ChequeReceiveOn,
-      m.MemberName,
-      NULL AS Remark,
-      CASE 
-        WHEN yps.PaymentType = 'Cheque' THEN CONCAT('Cheque - ', yps.ChequeNumber)
-        ELSE yps.PaymentType
-      END AS DisplayPaymentType,
-      'yearly' AS Source
-    FROM YearlyPaymentSummary yps
-    JOIN Members m ON yps.MembershipID = m.MembershipID
-    WHERE yps.ReceiptNumber = @ReceiptNo
-  `;
-
-  const yearlyResult = await pool
-    .request()
-    .input('ReceiptNo', sql.VarChar, receiptNo)
-    .query(yearlyQuery);
-
-  if (yearlyResult.recordset.length > 0) {
-    return yearlyResult.recordset[0];
-  }
-
-  // If not found: Try from OtherPayments table
-  const otherQuery = `
-   SELECT  
-    op.ReceiptNumber,
-    CONVERT(varchar, op.CreatedAt, 23) AS ReceiptDate,
-    m.CompanyName,
-    m.MemberName,
-    op.PaymentMode AS DisplayPaymentType,
-    op.Amount AS ReceivedAmount,
-    op.PaymentCategory AS PaymentType,
-    op.ChequeNumber,
-    op.ChequeReceiveOn,
-    NULL AS PaymentYear,
-    op.Remark,
-    'other' AS Source
-  FROM 
-    OtherPayments op
-  JOIN 
-    Members m ON op.MembershipID = m.MembershipID
-  WHERE 
-    op.PaymentCategory IN ('Other', 'Registration')
-    AND op.ReceiptNumber = @ReceiptNo
-  `;
-
-  const otherResult = await pool
-    .request()
-    .input('ReceiptNo', sql.VarChar, receiptNo)
-    .query(otherQuery);
-
-  return otherResult.recordset.length > 0 ? otherResult.recordset[0] : null;
-}
-
-app.get('/Ohkla/report/receipt', async (req, res) => {
-  const receiptNo = req.query.receiptNo;
-  if (!receiptNo) {
-    return res.status(400).send('receiptNo param is required');
-  }
-
-  try {
-    const data = await getReceiptData(receiptNo);
-    if (!data) return res.status(404).send('Receipt not found');
-    
-
-    // Logic to decide dynamic fields
- const formatDate = (dateStr) => {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  }); // Output: 26 Jun 2025
+// Font setup for pdfmake
+const fonts = {
+  Roboto: {
+    normal: path.join(__dirname, "..", "Fonts", "Roboto-Regular.ttf"),
+    bold: path.join(__dirname, "..", "Fonts", "Roboto-Medium.ttf"),
+    italics: path.join(__dirname, "..", "Fonts", "Roboto-Italic.ttf"),
+    bolditalics: path.join(__dirname, "..", "Fonts", "Roboto-MediumItalic.ttf"),
+  },
 };
 
+const printer = new PdfPrinter(fonts);
 
+// GET receipt PDF by receipt number
+router.get("/Ohkla/report/receipt", async (req, res) => {
+  try {
+    const { receiptNo } = req.query;
 
-    const paymentType = (data.PaymentType || '').toLowerCase();
-    const isCheque = paymentType === 'cheque';
-    console.log("PaymentType:", data.PaymentType);
-console.log("ChequeNumber:", data.ChequeNumber);
-console.log("ChequeReceiveOn:", data.ChequeReceiveOn);
+    if (!receiptNo) {
+      return res.status(400).send("Missing receiptNo in query");
+    }
 
-    
-    const isOtherOrReg = paymentType === 'registration' || paymentType === 'other';
+    const pool = await poolPromise;
+    const result = await pool
+      .request()
+      .input("receiptNo", receiptNo)
+      .query(`
+        SELECT 
+          yps.ReceiptNumber,
+          yps.ReceiptDate,
+          m.CompanyName,
+          m.MemberName,
+          yps.AmountPaid AS ReceivedAmount,
+          yps.ChequeNumber,
+          yps.ChequeReceiveOn,
+          yps.PaymentType
+        FROM 
+          YearlyPaymentSummary yps
+        JOIN 
+          Members m ON yps.MembershipID = m.MembershipID
+        WHERE 
+          yps.ReceiptNumber = @receiptNo
+      `);
 
-    const paymentYearHtml = !isOtherOrReg && data.PaymentYear
-      ? `<p><strong>For Year:</strong> ${data.PaymentYear}</p>` : '';
+    if (result.recordset.length === 0) {
+      return res.status(404).send("Receipt not found");
+    }
 
-    const remarkHtml = isOtherOrReg && data.Remark
-      ? `<p><strong>Remark:</strong> ${data.Remark}</p>` : '';
-      
-const chequeNumberHtml = data.ChequeNumber
-  ? `<p><strong>Cheque Number:</strong> ${data.ChequeNumber}</p>` : '';
+    const data = result.recordset[0];
 
-const chequeReceiveOnHtml = data.ChequeReceiveOn
-  ? `<p><strong>Cheque Received On:</strong> ${formatDate(data.ChequeReceiveOn)}</p>` : '';
+    const docDefinition = {
+      content: [
+        { text: "Receipt", style: "header" },
+        { text: `Receipt No: ${data.ReceiptNumber}` },
+        { text: `Date: ${new Date(data.ReceiptDate).toLocaleDateString("en-IN")}` },
+        { text: `Company: ${data.CompanyName}` },
+        { text: `Member: ${data.MemberName}` },
+        { text: `Amount Received: ₹${data.ReceivedAmount}` },
+        { text: `Payment Type: ${data.PaymentType}` },
+        { text: `Cheque No: ${data.ChequeNumber || "-"}` },
+        { text: `Cheque Receive On: ${data.ChequeReceiveOn ? new Date(data.ChequeReceiveOn).toLocaleDateString("en-IN") : "-"}` },
+      ],
+      styles: {
+        header: {
+          fontSize: 20,
+          bold: true,
+          margin: [0, 0, 0, 15],
+        },
+      },
+    };
 
-
-          
-    // Inject static and dynamic values
-    let html = fs.readFileSync(path.join('templatest/receiptTemplate.html'), 'utf8');
-    html = html
-      .replace('{{ReceiptNumber}}', data.ReceiptNumber || '')
-      .replace('{{CompanyName}}', data.CompanyName || '')
-      .replace('{{MemberName}}', data.MemberName || '')
-      .replace('{{ReceiptDate}}', data.ReceiptDate || '')
-      .replace('{{ReceivedAmount}}', data.ReceivedAmount || '')
-      .replace('{{PaymentType}}', data.PaymentType || '')
-      .replace('{{PaymentYearSection}}', paymentYearHtml)
-      .replace('{{RemarkSection}}', remarkHtml)
-  html = html.replace('{{ChequeNumberSection}}', chequeNumberHtml);
-html = html.replace('{{ChequeReceiveOnSection}}', chequeReceiveOnHtml);
-
-
-//const browser = await puppeteer.launch({
-  //headless: true,
- // args: ['--no-sandbox', '--disable-setuid-sandbox']
-//});
-
-  //  const page = await browser.newPage();
-    //await page.setContent(html, { waitUntil: 'networkidle0' });
-    //const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
-    //await browser.close();
-
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `inline; filename=Receipt_${receiptNo}.pdf`,
-    });
-    res.send(pdfBuffer);
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename=Receipt_${data.ReceiptNumber}.pdf`);
+    pdfDoc.pipe(res);
+    pdfDoc.end();
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error while generating receipt');
+    console.error("PDF generation error:", err);
+    res.status(500).send("Failed to generate PDF");
   }
 });
 
-
-
-app.listen(5000, () => {
-  console.log("🚀 Server started on http://localhost:5000");
-});
+export default router;
