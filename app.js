@@ -4,6 +4,8 @@ import PdfPrinter from "pdfmake";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { poolPromise } from "./db.js"; // adjust path if needed
+import receiptRoutes from "./controller/receipt.js"; // ✅ Corrected path
+import bodyParser from "body-parser";
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -89,5 +91,17 @@ router.get("/Ohkla/report/receipt", async (req, res) => {
     res.status(500).send("Failed to generate PDF");
   }
 });
+const app = express();
 
-export default router;
+// Middleware
+app.use(bodyParser.json());
+
+// Routes
+app.use(receiptRoutes);
+
+// ✅ Required by Render.com
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✅ Server is running on port ${PORT}`);
+});
+
