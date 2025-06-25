@@ -1,13 +1,15 @@
 // Import modules
 import express from "express";
+import cors from "cors";
 import PdfPrinter from "pdfmake";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { poolPromise } from "./db.js"; // adjust path if needed
 import receiptRoutes from "./controller/receipt.js"; // ✅ Corrected path
 import bodyParser from "body-parser";
-import cors from "cors";
 
+
+const app = express();
 const allowedOrigins = [
   "https://www.oppa.co.in", // ✅ your production frontend
   "http://localhost:3000"   // optional: local testing
@@ -108,7 +110,6 @@ router.get("/Ohkla/report/receipt", async (req, res) => {
     res.status(500).send("Failed to generate PDF");
   }
 });
-const app = express();
 
 // Middleware
 app.use(bodyParser.json());
