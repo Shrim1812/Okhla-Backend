@@ -1,8 +1,24 @@
-import pdfMake from 'pdfmake/build/pdfmake.js';
-import pdfFonts from 'pdfmake/build/vfs_fonts.js';
+import fs from "fs";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+import PdfPrinter from "pdfmake";
 import { poolPromise } from "../db.js";
 
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+// ES module path setup
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Define font paths for pdfmake
+const Fonts = {
+  Roboto: {
+    normal: path.join(__dirname, "..", "Fonts", "Roboto-Regular.ttf"),
+    bold: path.join(__dirname, "..", "Fonts", "Roboto-Medium.ttf"),
+    italics: path.join(__dirname, "..", "Fonts", "Roboto-Italic.ttf"),
+    bolditalics: path.join(__dirname, "..", "Fonts", "Roboto-MediumItalic.ttf"),
+  },
+};
+
+const printer = new PdfPrinter(Fonts);
 
 export const ReceipPDF = async (req, res) => {
   try {
@@ -74,13 +90,13 @@ export const ReceipPDF = async (req, res) => {
       pageOrientation: "landscape",
     };
 
-    const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-    pdfDocGenerator.getBuffer((buffer) => {
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", "inline; filename=payment-report.pdf");
-      res.send(buffer);
-    });
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
 
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline; filename=payment-report.pdf");
+
+    pdfDoc.pipe(res);
+    pdfDoc.end();
   } catch (err) {
     console.error("PDF generation error:", err);
     res.status(500).send("Error generating report");
