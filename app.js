@@ -2,37 +2,25 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
-import PdfPrinter from "pdfmake";
 import { poolPromise } from "./db.js";
 import MemberRouter from "./Router/MemberForm.js"; // ✅ Login route
 import receiptRoutes from './controller/receipt.js';
-
+import PdfPrinter from "pdfmake";
 
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 app.use('/receipt', receiptRoutes);
-// ✅ Fonts for PDF
-const fonts = {
-  Roboto: {
-    normal: path.join(__dirname, "Fonts", "Roboto-Regular.ttf"),
-    bold: path.join(__dirname, "Fonts", "Roboto-Medium.ttf"),
-    italics: path.join(__dirname, "Fonts", "Roboto-Italic.ttf"),
-    bolditalics: path.join(__dirname, "Fonts", "Roboto-MediumItalic.ttf"),
-  },
-};
-const printer = new PdfPrinter(fonts);
+
+// ✅ No custom fonts (pdfmake uses built-in fonts)
+const printer = new PdfPrinter({}); // No fonts object
 
 // ✅ Middleware
 app.use(bodyParser.json());
+
 const corsOptions = {
   origin: 'https://www.oppa.co.in',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 };
-
 app.use(cors(corsOptions));
 
 // ✅ Login route
