@@ -1,14 +1,15 @@
+// Import necessary modules
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import PdfPrinter from "pdfmake";
 import { poolPromise } from "../db.js";
 
-// ES module path setup
+// Resolve __dirname in ES Module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Define font paths for pdfmake
+// Font setup for pdfmake
 const Fonts = {
   Roboto: {
     normal: path.join(__dirname, "..", "Fonts", "Roboto-Regular.ttf"),
@@ -43,6 +44,7 @@ export const ReceipPDF = async (req, res) => {
 
     const data = result.recordset;
 
+    // Build table body
     const tableBody = [
       [
         "Receipt No.",
@@ -59,7 +61,7 @@ export const ReceipPDF = async (req, res) => {
     data.forEach((row) => {
       tableBody.push([
         row.ReceiptNumber || "-",
-        row.ReceiptDate ? new Date(row.ReceiptDate).toLocaleDateString() : "-",
+        row.ReceiptDate ? new Date(row.ReceiptDate).toLocaleDateString("en-IN") : "-",
         row.CompanyName || "-",
         row.MemberName || "-",
         row.ReceivedAmount ?? "-",
@@ -69,6 +71,7 @@ export const ReceipPDF = async (req, res) => {
       ]);
     });
 
+    // PDF layout
     const docDefinition = {
       content: [
         { text: "Yearly Payment Summary Report", style: "header" },
@@ -90,15 +93,14 @@ export const ReceipPDF = async (req, res) => {
       pageOrientation: "landscape",
     };
 
+    // Generate PDF and stream it
     const pdfDoc = printer.createPdfKitDocument(docDefinition);
-
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "inline; filename=payment-report.pdf");
-
     pdfDoc.pipe(res);
     pdfDoc.end();
   } catch (err) {
     console.error("PDF generation error:", err);
-    res.status(500).send("Error generating report");
+    res.status(500).send("Error generating PDF report");
   }
 };
