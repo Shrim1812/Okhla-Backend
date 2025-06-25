@@ -74,7 +74,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
       styles: {
         header: {
           fontSize: 20,
-          bold: true,
+          //bold: true,
           margin: [0, 0, 0, 15],
         },
       },
