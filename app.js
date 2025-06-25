@@ -1,5 +1,5 @@
 import express from 'express';
-
+import puppeteer from 'puppeteer-core';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import Member from './Router/MemberForm.js';
@@ -184,11 +184,10 @@ const chequeReceiveOnHtml = data.ChequeReceiveOn
 html = html.replace('{{ChequeReceiveOnSection}}', chequeReceiveOnHtml);
 
 
-const browser = await chromium.puppeteer.launch({
-  args: chromium.args,
-  defaultViewport: chromium.defaultViewport,
-  executablePath: await chromium.executablePath,
-  headless: chromium.headless,
+const browser = await puppeteer.launch({
+  args: chrome.args,
+  executablePath: await chrome.executablePath || '/usr/bin/chromium-browser',
+  headless: true
 });
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
