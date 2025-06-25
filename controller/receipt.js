@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Font setup for pdfmake
-const Fonts = {
+/* const Fonts = {
   Roboto: {
     normal: path.join(__dirname, "..", "Fonts", "Roboto-Regular.ttf"),
     bold: path.join(__dirname, "..", "Fonts", "Roboto-Medium.ttf"),
@@ -20,8 +20,8 @@ const Fonts = {
     bolditalics: path.join(__dirname, "..", "Fonts", "Roboto-MediumItalic.ttf"),
   },
 };
-
-const printer = new PdfPrinter(Fonts);
+*/
+const printer = new PdfPrinter();
 const router = express.Router();
 
 router.post("/generate-receipt", async (req, res) => {
