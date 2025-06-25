@@ -1,18 +1,18 @@
 // app.js
 import express from "express";
 import cors from "cors";
+import bodyParser from "body-parser";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import { poolPromise } from "./db.js";
-import bodyParser from "body-parser";
 import PdfPrinter from "pdfmake";
+import { poolPromise } from "./db.js";
+import MemberRouter from "./Router/MemberForm.js"; // ✅ Login route
 
 const app = express();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Font setup for pdfmake
+// ✅ Fonts for PDF
 const fonts = {
   Roboto: {
     normal: path.join(__dirname, "Fonts", "Roboto-Regular.ttf"),
@@ -21,40 +21,29 @@ const fonts = {
     bolditalics: path.join(__dirname, "Fonts", "Roboto-MediumItalic.ttf"),
   },
 };
-
 const printer = new PdfPrinter(fonts);
 
-// Middleware
+// ✅ Middleware
 app.use(bodyParser.json());
-
-const allowedOrigins = [
-  "https://www.oppa.co.in",
-  "http://localhost:3000",
-];
-
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
+  origin: [
+    "https://www.oppa.co.in",
+    "http://localhost:3000"
+  ],
+  credentials: true
 }));
 
-// ✅ MAIN PDF ROUTE (working)
+// ✅ Login route
+app.use("/Ohkla", MemberRouter);
+
+// ✅ PDF route
 app.get("/Ohkla/report/receipt", async (req, res) => {
   try {
     const { receiptNo } = req.query;
-
-    if (!receiptNo) {
-      return res.status(400).send("Missing receiptNo in query");
-    }
+    if (!receiptNo) return res.status(400).send("Missing receiptNo in query");
 
     const pool = await poolPromise;
-    const result = await pool
-      .request()
+    const result = await pool.request()
       .input("receiptNo", receiptNo)
       .query(`
         SELECT 
@@ -112,8 +101,8 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
   }
 });
 
-// Server start
+// ✅ Server start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`✅ Server is running on port ${PORT}`);
+  console.log(`✅ Server running at http://localhost:${PORT}`);
 });
