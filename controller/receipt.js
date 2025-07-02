@@ -1,5 +1,5 @@
 import express from "express";
-import fs from "fs";
+import fs from "fs"; // Important for debugging file existence
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import PdfPrinter from "pdfmake";
@@ -9,9 +9,49 @@ import { poolPromise } from "../db.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Corrected fontsPath based on your screenshot
-// It seems your route file is in 'Router' and 'Fonts' is at the root level.
-const fontsPath = path.join(__dirname, '..', 'Fonts'); // Go up from 'Router' to the project root, then into 'Fonts'
+// --- START DEBUGGING LOGS ---
+console.log('DEBUG: Node.js version:', process.version);
+console.log('DEBUG: Current file path (__filename):', __filename);
+console.log('DEBUG: Current directory (__dirname):', __dirname);
+
+// Based on your screenshot, assuming your route file is in 'src/routes'
+// and 'Fonts' is at the project root.
+// So, from /opt/render/project/src/routes/your-route.js,
+// we go '..' to /opt/render/project/src/,
+// then another '..' to /opt/render/project/ (the project root).
+const projectRoot = path.join(__dirname, '..', '..');
+const fontsDirectoryName = 'Fonts'; // Make sure this matches the case exactly
+const fontsPath = path.join(projectRoot, fontsDirectoryName);
+
+console.log('DEBUG: Calculated projectRoot:', projectRoot);
+console.log('DEBUG: Calculated fontsPath (where pdfmake is looking):', fontsPath);
+
+try {
+    const isFontsPathDirectory = fs.existsSync(fontsPath) && fs.lstatSync(fontsPath).isDirectory();
+    console.log(`DEBUG: Is '${fontsPath}' a directory?`, isFontsPathDirectory);
+
+    if (isFontsPathDirectory) {
+        const filesInFontsDir = fs.readdirSync(fontsPath);
+        console.log('DEBUG: Files found in fonts directory:', filesInFontsDir);
+
+        // Check for specific font files
+        const requiredFonts = ['Roboto-Regular.ttf', 'Roboto-Medium.ttf', 'Roboto-Italic.ttf', 'Roboto-MediumItalic.ttf'];
+        requiredFonts.forEach(fontFile => {
+            const fontFilePath = path.join(fontsPath, fontFile);
+            const exists = fs.existsSync(fontFilePath);
+            console.log(`DEBUG: Font file '${fontFile}' exists at '${fontFilePath}'?`, exists);
+            if (!exists) {
+                console.error(`DEBUG: !!! CRITICAL: ${fontFile} NOT FOUND at expected path!`);
+            }
+        });
+    } else {
+        console.error('DEBUG: !!! CRITICAL: Fonts directory DOES NOT EXIST or is not a directory at:', fontsPath);
+    }
+} catch (err) {
+    console.error('DEBUG: !!! CRITICAL: Error accessing fonts directory:', err.message);
+}
+// --- END DEBUGGING LOGS ---
+
 
 const fonts = {
   Roboto: {
