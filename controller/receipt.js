@@ -1,6 +1,6 @@
 import express from "express";
 import fs from "fs"; // Keep for debugging
-import path, { dirname } from "path";
+import path, { dirname } = "path";
 import { fileURLToPath } from "url";
 import PdfPrinter from "pdfmake";
 import { poolPromise } from "../db.js";
@@ -16,7 +16,7 @@ console.log('DEBUG: Current __dirname:', __dirname);
 // CORRECTED fontsPath calculation:
 // From /opt/render/project/src/controller/, go up one ('..') to /opt/render/project/src/,
 // then go into 'Fonts' folder
-const fontsPath = path.join(__dirname, '..', 'Fonts');
+const fontsPath = path.join(__dirname, '..', 'Fonts'); // This is the path we deduced from previous logs
 
 console.log('DEBUG: Calculated fontsPath (after correction):', fontsPath);
 
