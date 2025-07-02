@@ -1,5 +1,3 @@
-// controller/receipt.js
-
 import express from "express";
 import fs from "fs";
 import path, { dirname } from "path";
@@ -11,17 +9,7 @@ import { poolPromise } from "../db.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Font setup for pdfmake
-/* const Fonts = {
-  Roboto: {
-    normal: path.join(__dirname, "..", "Fonts", "Roboto-Regular.ttf"),
-    bold: path.join(__dirname, "..", "Fonts", "Roboto-Medium.ttf"),
-    italics: path.join(__dirname, "..", "Fonts", "Roboto-Italic.ttf"),
-    bolditalics: path.join(__dirname, "..", "Fonts", "Roboto-MediumItalic.ttf"),
-  },
-};
-*/
-const printer = new PdfPrinter();
+const printer = new PdfPrinter(); // No fonts setup
 const router = express.Router();
 
 router.post("/generate-receipt", async (req, res) => {
@@ -109,4 +97,3 @@ router.post("/generate-receipt", async (req, res) => {
 });
 
 export default router;
-
