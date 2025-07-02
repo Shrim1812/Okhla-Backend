@@ -3,13 +3,30 @@ import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import PdfPrinter from "pdfmake";
-import { poolPromise } from "../db.js";
+import { poolPromise } from "../db.js"; // Assuming db.js is in the parent directory
 
 // Resolve __dirname in ES Module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const printer = new PdfPrinter(); // No custom font setup
+// Define the path to your fonts directory
+// Make sure this path is correct relative to where your server.js or main app file is.
+// For example, if your fonts are in 'src/fonts', and this file is in 'src/routes',
+// then path.join(__dirname, '..', 'fonts') might be correct.
+// Adjust this path based on your actual project structure.
+const fontsPath = path.join(__dirname, '..', 'Fonts'); // Assuming 'fonts' directory is one level up from the current file
+
+const fonts = {
+  Roboto: {
+    normal: path.join(fontsPath, 'Roboto-Regular.ttf'),
+    bold: path.join(fontsPath, 'Roboto-Medium.ttf'), // Or Roboto-Bold.ttf, if you have it
+    italics: path.join(fontsPath, 'Roboto-Italic.ttf'),
+    bolditalics: path.join(fontsPath, 'Roboto-MediumItalic.ttf') // Or Roboto-BoldItalic.ttf
+  }
+  // You can add more fonts here if needed
+};
+
+const printer = new PdfPrinter(fonts); // Pass the font configuration
 const router = express.Router();
 
 router.post("/generate-receipt", async (req, res) => {
@@ -82,6 +99,9 @@ router.post("/generate-receipt", async (req, res) => {
         },
       },
       pageOrientation: "landscape",
+      defaultStyle: { // Optional: Set a default font if you want everything to be Roboto
+        font: 'Roboto'
+      }
     };
 
     // Generate PDF and stream it
