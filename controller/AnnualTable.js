@@ -76,7 +76,8 @@ export const insertAnnualPayments = async (req, res) => {
           ISNULL(PrinterPayment, 0) AS PrinterPayment,
           ISNULL(ProviderPayment, 0) AS ProviderPayment,
           ISNULL(MachineDealerPayment, 0) AS MachineDealerPayment,
-          ISNULL(PublisherPayment, 0) AS PublisherPayment
+          ISNULL(PublisherPayment, 0) AS PublisherPayment,
+		  ISNULL(PaperSupplierPayment, 0) AS PaperSupplierPayment														 
         FROM TotalPayments
         WHERE YearRange = @MemberSince
       `);
@@ -92,7 +93,7 @@ export const insertAnnualPayments = async (req, res) => {
         else if (Category === 'Provider') totalAmount = paymentRow.ProviderPayment;
         else if (Category === 'MachineDealer') totalAmount = paymentRow.MachineDealerPayment;
         else if (Category === 'Publisher') totalAmount = paymentRow.PublisherPayment;
-
+		else if (Category === 'PaperSupplier') totalAmount = paymentRow.PaperSupplierPayment;
         // 3. Insert into AnnualPayment table
         await pool.request()
             .input('MembershipID', newMemberId)
@@ -131,109 +132,6 @@ export const getYearRange = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-
-// export const updateAnnualPayment = async (req, res) => {
-//     const { MembershipID, PaymentYear, AmountPaid } = req.body;
-
-//     if (!MembershipID || !PaymentYear || isNaN(AmountPaid)) {
-//         return res.status(400).json({
-//             success: false,
-//             message: "Invalid input. MembershipID, PaymentYear, and AmountPaid are required.",
-//         });
-//     }
-
-//     try {
-//         const pool = await poolPromise;
-
-//         // Step 1: Get AnnualFee from TotalPayments using YearRange
-//         const totalResult = await pool.request()
-//             .input("YearRange", sql.VarChar, PaymentYear)
-//             .query(`
-//                 SELECT 
-//                     ISNULL(PrinterPayment, 0) +
-//                     ISNULL(ProviderPayment, 0) +
-//                     ISNULL(MachineDealerPayment, 0) +
-//                     ISNULL(PublisherPayment, 0) AS AnnualFee
-//                 FROM TotalPayments
-//                 WHERE YearRange = @YearRange
-//             `);
-
-//         if (totalResult.recordset.length === 0) {
-//             return res.status(400).json({ success: false, message: "No TotalPayments found for this year." });
-//         }
-
-//         const { AnnualFee = 0 } = totalResult.recordset[0];
-//         const totalAmount = AnnualFee;
-
-//         if (totalAmount <= 0 || AmountPaid > totalAmount) {
-//             return res.status(400).json({ success: false, message: "Invalid Annual Fee or payment amount." });
-//         }
-
-//         // Step 2: Check if record exists in AnnualPayment
-//         const existing = await pool.request()
-//             .input("MembershipID", sql.Int, MembershipID)
-//             .input("Year", sql.VarChar, PaymentYear)
-//             .query(`
-//                 SELECT * FROM AnnualPayment 
-//                 WHERE MembershipID = @MembershipID AND Year = @Year
-//             `);
-
-//         if (existing.recordset.length > 0) {
-//             const row = existing.recordset[0];
-
-//             const prevPaid = row.AmountPaid || 0;
-//             const updatedAmountPaid = AmountPaid;
-//             const updatedDueAmount = totalAmount - updatedAmountPaid;
-
-//             console.log("Backend DEBUG:");
-//             console.log("Total Amount from TotalPayments:", totalAmount);
-//             console.log("AmountPaid received from frontend:", AmountPaid);
-//             console.log("Final updatedAmountPaid to update:", updatedAmountPaid);
-//             console.log("Final updatedDueAmount to update:", updatedDueAmount);
-
-
-
-//             if (isNaN(updatedAmountPaid) || isNaN(updatedDueAmount)) {
-//                 return res.status(400).json({ success: false, message: "Payment values invalid (NaN)." });
-//             }
-
-//             await pool.request()
-//                 .input("AmountPaid", sql.Money, updatedAmountPaid)
-//                 .input("DueAmount", sql.Money, updatedDueAmount)
-//                 .input("TotalAmount", sql.Money, totalAmount)
-//                 .input("MembershipID", sql.Int, MembershipID)
-//                 .input("Year", sql.VarChar, PaymentYear)
-//                 .query(`
-//                     UPDATE AnnualPayment
-//                     SET AmountPaid = @AmountPaid, DueAmount = @DueAmount, TotalAmount = @TotalAmount
-//                     WHERE MembershipID = @MembershipID AND Year = @Year
-//                 `);
-//         } else {
-//             const dueAmount = totalAmount - AmountPaid;
-
-//             if (isNaN(dueAmount)) {
-//                 return res.status(400).json({ success: false, message: "Calculated DueAmount is not valid." });
-//             }
-
-//             await pool.request()
-//                 .input("MembershipID", sql.Int, MembershipID)
-//                 .input("Year", sql.VarChar, PaymentYear)
-//                 .input("TotalAmount", sql.Money, totalAmount)
-//                 .input("AmountPaid", sql.Money, AmountPaid)
-//                 .input("DueAmount", sql.Money, dueAmount)
-//                 .query(`
-//                     INSERT INTO AnnualPayment (MembershipID, Year, TotalAmount, AmountPaid, DueAmount)
-//                     VALUES (@MembershipID, @Year, @TotalAmount, @AmountPaid, @DueAmount)
-//                 `);
-//         }
-
-//         res.status(200).json({ success: true, message: "Annual Payment Summary updated successfully." });
-
-//     } catch (err) {
-//         console.error("Error in updateAnnualPayment:", err);
-//         res.status(500).json({ success: false, message: "Server error while updating annual payment summary." });
-//     }
-// };
 
 export const ReceiptOfPayment = async (req, res) => {
     const {
@@ -386,35 +284,52 @@ export const updateAnnualPayment = async (req, res) => {
                 .input("Year", sql.VarChar, PaymentYear)
                 .query(`
                     UPDATE AnnualPayment
-                    SET AmountPaid = @AmountPaid, DueAmount = @DueAmount
+                    SET AmountPaid = @AmountPaid, DueAmount = @DueAmount, LastUpdated = GETDATE()
                     WHERE MembershipID = @MembershipID AND Year = @Year
                 `);
 
+            return res.status(200).json({ success: true, message: "Annual payment updated ✅" });
+
         } else {
-            // ✅ Create new record — now calculate TotalAmount based on TotalPayments
+            // ❌ Record not found: Calculate TotalAmount based on Category
+            const memberDetails = await pool.request()
+                .input("MembershipID", sql.Int, MembershipID)
+                .query(`SELECT Category FROM Members WHERE MembershipID = @MembershipID`);
+
+            if (memberDetails.recordset.length === 0) {
+                return res.status(404).json({ success: false, message: "Member not found." });
+            }
+
+            const category = memberDetails.recordset[0].Category;
+
             const totalResult = await pool.request()
                 .input("YearRange", sql.VarChar, PaymentYear)
                 .query(`
                     SELECT 
-                        ISNULL(PrinterPayment, 0) +
-                        ISNULL(ProviderPayment, 0) +
-                        ISNULL(MachineDealerPayment, 0) +
-                        ISNULL(PublisherPayment, 0) AS AnnualFee
+                        ISNULL(PrinterPayment, 0) AS PrinterPayment,
+                        ISNULL(ProviderPayment, 0) AS ProviderPayment,
+                        ISNULL(MachineDealerPayment, 0) AS MachineDealerPayment,
+                        ISNULL(PublisherPayment, 0) AS PublisherPayment,
+                        ISNULL(PaperSupplier, 0) AS PaperSupplierPayment
                     FROM TotalPayments
                     WHERE YearRange = @YearRange
                 `);
 
             if (totalResult.recordset.length === 0) {
-                return res.status(400).json({ success: false, message: "No TotalPayments found for this year." });
+                return res.status(404).json({ success: false, message: "Payment settings not found for this year." });
             }
 
-            const { AnnualFee = 0 } = totalResult.recordset[0];
-            const totalAmount = AnnualFee;
+            const payRow = totalResult.recordset[0];
+            let totalAmount = 0;
+            if (category === 'Printer') totalAmount = payRow.PrinterPayment;
+            else if (category === 'Provider') totalAmount = payRow.ProviderPayment;
+            else if (category === 'MachineDealer') totalAmount = payRow.MachineDealerPayment;
+            else if (category === 'Publisher') totalAmount = payRow.PublisherPayment;
+            else if (category === 'PaperSupplier') totalAmount = payRow.PaperSupplierPayment;
+
             const dueAmount = totalAmount - AmountPaid;
-
-            if (isNaN(dueAmount)) {
-                return res.status(400).json({ success: false, message: "Calculated DueAmount is not valid." });
-            }
+																											   
+			 
 
             await pool.request()
                 .input("MembershipID", sql.Int, MembershipID)
@@ -423,18 +338,20 @@ export const updateAnnualPayment = async (req, res) => {
                 .input("AmountPaid", sql.Money, AmountPaid)
                 .input("DueAmount", sql.Money, dueAmount)
                 .query(`
-                    INSERT INTO AnnualPayment (MembershipID, Year, TotalAmount, AmountPaid, DueAmount)
-                    VALUES (@MembershipID, @Year, @TotalAmount, @AmountPaid, @DueAmount)
+                    INSERT INTO AnnualPayment (MembershipID, Year, TotalAmount, AmountPaid, DueAmount, LastUpdated)
+                    VALUES (@MembershipID, @Year, @TotalAmount, @AmountPaid, @DueAmount, GETDATE())
                 `);
+		 
+
+            return res.status(201).json({ success: true, message: "Annual payment inserted ✅" });
         }
 
-        res.status(200).json({ success: true, message: "Annual Payment Summary updated successfully." });
-
     } catch (err) {
-        console.error("Error in updateAnnualPayment:", err);
-        res.status(500).json({ success: false, message: "Server error while updating annual payment summary." });
+        console.error("❌ Error updating annual payment:", err.message);
+        res.status(500).json({ success: false, error: "Server error." });
     }
 };
+
 
 
 export const YearlyPaymentList = async (req, res) => {
@@ -450,7 +367,8 @@ export const YearlyPaymentList = async (req, res) => {
         PrinterRegistration,
         ProviderRegistration,
         MachineDealerRegistration,
-        PublisherRegistration
+        PublisherRegistration,
+        PaperSupplierPayment
       FROM TotalPayments
     `);
 
@@ -462,105 +380,102 @@ export const YearlyPaymentList = async (req, res) => {
 }
 
 export const addNewYearAndInsertForAllMember = async (req, res) => {
-    const { yearRange, payments, registrations } = req.body;
+  // We extract the year as 'yearRange' from the request body.
+  const { yearRange, payments, registrations } = req.body;
 
-    try {
-        const pool = await poolPromise;
+  try {
+    const pool = await poolPromise;
 
-        // 1. Check for existing year in TotalPayments
-        const existing = await pool.request()
-            .input("YearRange", sql.VarChar, yearRange)
-            .query("SELECT * FROM TotalPayments WHERE YearRange = @YearRange");
+    // 1. Check for existing year in TotalPayments
+    const existing = await pool.request()
+      .input("YearRange", sql.VarChar, yearRange)
+      .query("SELECT * FROM TotalPayments WHERE YearRange = @YearRange");
 
-        if (existing.recordset.length > 0) {
-            return res.json({ success: false, message: "Year already exists" });
-        }
+    if (existing.recordset.length > 0) {
+      return res.json({ success: false, message: "Year already exists" });
+    }
+    // 2. Insert into TotalPayments including registrations
+    await pool.request()
+      .input("YearRange", sql.VarChar, yearRange)
+      .input("PrinterPayment", sql.Money, payments.Printer || 0)
+      .input("ProviderPayment", sql.Money, payments.Provider || 0)
+      .input("MachineDealerPayment", sql.Money, payments.MachineDealer || 0)
+      .input("PublisherPayment", sql.Money, payments.Publisher || 0)
+      .input("PaperSupplierPayment", sql.Money, payments.PaperSupplier || 0)
+      .input("PrinterRegistration", sql.Money, registrations.Printer || 0)
+      .input("ProviderRegistration", sql.Money, registrations.Provider || 0)
+      .input("MachineDealerRegistration", sql.Money, registrations.MachineDealer || 0)
+      .input("PublisherRegistration", sql.Money, registrations.Publisher || 0)
+      .input("PaperSupplierRegistration", sql.Money, registrations.PaperSupplier || 0)
+      .query(`
+       INSERT INTO TotalPayments 
+         (YearRange, PrinterPayment, ProviderPayment, MachineDealerPayment, PublisherPayment, PaperSupplierPayment,
+          PrinterRegistration, ProviderRegistration, MachineDealerRegistration, PublisherRegistration, PaperSupplierRegistration)
+        VALUES 
+       (@YearRange, @PrinterPayment, @ProviderPayment, @MachineDealerPayment, @PublisherPayment, @PaperSupplierPayment,
+         @PrinterRegistration, @ProviderRegistration, @MachineDealerRegistration, @PublisherRegistration, @PaperSupplierRegistration)
+      `);
 
-        // 2. Insert into TotalPayments including registrations
-        await pool.request()
-            .input("YearRange", sql.VarChar, yearRange)
-            .input("PrinterPayment", sql.Money, payments.Printer || 0)
-            .input("ProviderPayment", sql.Money, payments.Provider || 0)
-            .input("MachineDealerPayment", sql.Money, payments.MachineDealer || 0)
-            .input("PublisherPayment", sql.Money, payments.Publisher || 0)
-            .input("PrinterRegistration", sql.Money, registrations.Printer || 0)
-            .input("ProviderRegistration", sql.Money, registrations.Provider || 0)
-            .input("MachineDealerRegistration", sql.Money, registrations.MachineDealer || 0)
-            .input("PublisherRegistration", sql.Money, registrations.Publisher || 0)
-            .query(`
-                INSERT INTO TotalPayments 
-                (YearRange, PrinterPayment, ProviderPayment, MachineDealerPayment, PublisherPayment,
-                PrinterRegistration, ProviderRegistration,MachineDealerRegistration, PublisherRegistration)
-                VALUES 
-                (@YearRange, @PrinterPayment, @ProviderPayment, @MachineDealerPayment, @PublisherPayment,
-                 @PrinterRegistration, @ProviderRegistration, @MachineDealerRegistration, @PublisherRegistration)
-            `);
+		
+    // 3. Get all members
+    const members = await pool.request().query("SELECT MembershipID, Category FROM Members");
 
-        // 3. Get all members
-        const members = await pool.request()
-            .query("SELECT MembershipID, Category FROM Members");
+    // 4. Insert into AnnualPayment (Payment + Registration) per member
+    console.log(members);
+    for (let member of members.recordset) {
+      let payment = 0;
+      let registration = 0;
 
-        // 4. Insert into AnnualPayment (Payment + Registration) per member
-        for (let member of members.recordset) {
-            let payment = 0;
-            let registration = 0;
+      switch (member.Category) {
+        case "Printer":
+          payment = payments.Printer || 0;
+          registration = registrations.Printer || 0;
+          break;
+        case "Provider":
+          payment = payments.Provider || 0;
+          registration = registrations.Provider || 0;
+          break;
+        case "MachineDealer":
+          payment = payments.MachineDealer || 0;
+          registration = registrations.MachineDealer || 0;
+          break;
+        case "Publisher":
+          payment = payments.Publisher || 0;
+          registration = registrations.Publisher || 0;
+          break;
+        case "PaperSupplier":
+          payment = payments.PaperSupplier || 0;
+          registration = registrations.PaperSupplier || 0;
+          break; // Added break here!
+        default:
+          payment = 0;
+          registration = 0;
+      }
+ 
+      console.log(payment);
+      console.log(registration);
+   const totalAmount = payment + registration;
+      const amountPaid = 0;
+      const dueAmount = totalAmount;
 
-            switch (member.Category) {
-                case "Printer":
-                    payment = payments.Printer || 0;
-                    registration = registrations.Printer || 0;
-                    break;
-                case "Provider":
-                    payment = payments.Provider || 0;
-                    registration = registrations.Provider || 0;
-                    break;
-                case "MachineDealer":
-                    payment = payments.MachineDealer || 0;
-                    registration = registrations.MachineDealer || 0;
-                    break;
-                case "Publisher":
-                    payment = payments.Publisher || 0;
-                    registration = registrations.Publisher || 0;
-                    break;
-                default:
-                    payment = 0;
-                    registration = 0;
-            }
+      await pool.request()
+        .input("MembershipID", sql.Int, member.MembershipID)
+        .input("Year", sql.VarChar, yearRange)
+        .input("TotalAmount", sql.Money, totalAmount)
+        .input("AmountPaid", sql.Money, amountPaid)
+        .input("DueAmount", sql.Money, dueAmount)
+        .query(`
+          INSERT INTO AnnualPayment 
+            (MembershipID, Year, TotalAmount, AmountPaid, DueAmount, LastUpdated)
+          VALUES 
+            (@MembershipID, @Year, @TotalAmount, @AmountPaid, @DueAmount, GETDATE())
+        `);
 
+    }
 
-            const totalAmount = payment
-            console.log(totalAmount)
-            // await pool.request()
-            //     .input("MembershipID", sql.Int, member.MembershipID)
-            //     .input("Year", sql.VarChar, yearRange)
-            //     .input("TotalAmount", sql.Money, totalAmount)
-            //     .input("AmountPaid", sql.Money, 0)
-            //     .input("DueAmount", sql.Money, totalAmount)
-
-            //     .query(`
-            //         INSERT INTO AnnualPayment (MembershipID, Year, TotalAmount, AmountPaid, DueAmount)
-            //         VALUES (@MembershipID, @Year, @TotalAmount, @AmountPaid, @DueAmount)
-            //     `);
-
-            const insertResult = await pool.request()
-                .input("MembershipID", sql.Int, member.MembershipID)
-                .input("Year", sql.VarChar, yearRange)
-                .input("TotalAmount", sql.Money, totalAmount)
-                .input("AmountPaid", sql.Money, 0)
-                .input("DueAmount", sql.Money, totalAmount)
-                .query(`
-        INSERT INTO AnnualPayment (MembershipID, Year, TotalAmount, AmountPaid, DueAmount)
-        OUTPUT INSERTED.*
-        VALUES (@MembershipID, @Year, @TotalAmount, @AmountPaid, @DueAmount)
-    `);
-
-            console.log("Inserted AnnualPayment row:", insertResult.recordset[0]);
-        }
-
-        res.json({ success: true, message: "Year added, TotalPayments and AnnualPayment inserted." });
-
-    } catch (err) {
-        console.error("Error adding year:", err);
-        res.status(500).json({ success: false, message: "Internal server error"});
-}
+    res.json({ success: true, message: "Year added, TotalPayments and AnnualPayment inserted." });
+  } catch (err) {
+    console.error("Error adding year:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
 };
