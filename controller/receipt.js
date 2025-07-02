@@ -1,64 +1,58 @@
 import express from "express";
-import fs from "fs"; // Important for debugging file existence
+import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import PdfPrinter from "pdfmake";
-import { poolPromise } from "../db.js";
+import { poolPromise } from "../db.js"; // Assuming db.js is still in the parent directory
 
 // Resolve __dirname in ES Module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// --- START DEBUGGING LOGS ---
-console.log('DEBUG: Node.js version:', process.version);
-console.log('DEBUG: Current file path (__filename):', __filename);
-console.log('DEBUG: Current directory (__dirname):', __dirname);
+// --- START AGGRESSIVE DEBUGGING LOGS ---
+console.log('DEBUG: Current __filename (absolute path of this file):', __filename);
+console.log('DEBUG: Current __dirname (absolute path of this directory):', __dirname);
 
-// Based on your screenshot, assuming your route file is in 'src/routes'
-// and 'Fonts' is at the project root.
-// So, from /opt/render/project/src/routes/your-route.js,
-// we go '..' to /opt/render/project/src/,
-// then another '..' to /opt/render/project/ (the project root).
-const projectRoot = path.join(__dirname, '..', '..');
-const fontsDirectoryName = 'Fonts'; // Make sure this matches the case exactly
-const fontsPath = path.join(projectRoot, fontsDirectoryName);
+// HYPOTHESIS: Your project root on Render is /opt/render/project/
+// And your Fonts directory is directly under it: /opt/render/project/Fonts/
+const absoluteFontsPathGuess = '/opt/render/project/Fonts';
 
-console.log('DEBUG: Calculated projectRoot:', projectRoot);
-console.log('DEBUG: Calculated fontsPath (where pdfmake is looking):', fontsPath);
+console.log('DEBUG: Attempting to use HARDCODED fontsPath:', absoluteFontsPathGuess);
 
 try {
-    const isFontsPathDirectory = fs.existsSync(fontsPath) && fs.lstatSync(fontsPath).isDirectory();
-    console.log(`DEBUG: Is '${fontsPath}' a directory?`, isFontsPathDirectory);
+    const isFontsPathDirectory = fs.existsSync(absoluteFontsPathGuess) && fs.lstatSync(absoluteFontsPathGuess).isDirectory();
+    console.log(`DEBUG: Is '${absoluteFontsPathGuess}' a directory?`, isFontsPathDirectory);
 
     if (isFontsPathDirectory) {
-        const filesInFontsDir = fs.readdirSync(fontsPath);
+        const filesInFontsDir = fs.readdirSync(absoluteFontsPathGuess);
         console.log('DEBUG: Files found in fonts directory:', filesInFontsDir);
 
-        // Check for specific font files
         const requiredFonts = ['Roboto-Regular.ttf', 'Roboto-Medium.ttf', 'Roboto-Italic.ttf', 'Roboto-MediumItalic.ttf'];
         requiredFonts.forEach(fontFile => {
-            const fontFilePath = path.join(fontsPath, fontFile);
+            const fontFilePath = path.join(absoluteFontsPathGuess, fontFile);
             const exists = fs.existsSync(fontFilePath);
             console.log(`DEBUG: Font file '${fontFile}' exists at '${fontFilePath}'?`, exists);
             if (!exists) {
-                console.error(`DEBUG: !!! CRITICAL: ${fontFile} NOT FOUND at expected path!`);
+                console.error(`DEBUG: !!! CRITICAL: ${fontFile} NOT FOUND at expected absolute path!`);
+            } else {
+                console.log(`DEBUG: 👍 ${fontFile} found!`);
             }
         });
     } else {
-        console.error('DEBUG: !!! CRITICAL: Fonts directory DOES NOT EXIST or is not a directory at:', fontsPath);
+        console.error('DEBUG: !!! CRITICAL: Fonts directory DOES NOT EXIST or is not a directory at:', absoluteFontsPathGuess);
     }
 } catch (err) {
-    console.error('DEBUG: !!! CRITICAL: Error accessing fonts directory:', err.message);
+    console.error('DEBUG: !!! CRITICAL: Error accessing fonts directory (during hardcoded path check):', err.message);
 }
-// --- END DEBUGGING LOGS ---
+// --- END AGGRESSIVE DEBUGGING LOGS ---
 
 
 const fonts = {
   Roboto: {
-    normal: path.join(fontsPath, 'Roboto-Regular.ttf'),
-    bold: path.join(fontsPath, 'Roboto-Medium.ttf'),
-    italics: path.join(fontsPath, 'Roboto-Italic.ttf'),
-    bolditalics: path.join(fontsPath, 'Roboto-MediumItalic.ttf')
+    normal: path.join(absoluteFontsPathGuess, 'Roboto-Regular.ttf'),
+    bold: path.join(absoluteFontsPathGuess, 'Roboto-Medium.ttf'), // Or Roboto-Bold.ttf
+    italics: path.join(absoluteFontsPathGuess, 'Roboto-Italic.ttf'),
+    bolditalics: path.join(absoluteFontsPathGuess, 'Roboto-MediumItalic.ttf') // Or Roboto-BoldItalic.ttf
   }
 };
 
