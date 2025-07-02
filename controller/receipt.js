@@ -1,13 +1,14 @@
 import express from "express";
 import fs from "fs"; // Keep for debugging
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import path from "path"; // <--- THIS LINE IS CRUCIAL AND MUST BE PRESENT
+import { fileURLToPath } from "url"; // <--- THIS LINE IS ALSO CRUCIAL
+
 import PdfPrinter from "pdfmake";
 import { poolPromise } from "../db.js";
 
 // Resolve __dirname in ES Module
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 // --- START DEBUGGING LOGS (keep for verification) ---
 console.log('DEBUG: Current __filename:', __filename);
