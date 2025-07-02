@@ -3,30 +3,26 @@ import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import PdfPrinter from "pdfmake";
-import { poolPromise } from "../db.js"; // Assuming db.js is in the parent directory
+import { poolPromise } from "../db.js";
 
 // Resolve __dirname in ES Module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Define the path to your fonts directory
-// Make sure this path is correct relative to where your server.js or main app file is.
-// For example, if your fonts are in 'src/fonts', and this file is in 'src/routes',
-// then path.join(__dirname, '..', 'fonts') might be correct.
-// Adjust this path based on your actual project structure.
-const fontsPath = path.join(__dirname, '..', 'Fonts'); // Assuming 'fonts' directory is one level up from the current file
+// Corrected fontsPath based on your screenshot
+// It seems your route file is in 'Router' and 'Fonts' is at the root level.
+const fontsPath = path.join(__dirname, '..', 'Fonts'); // Go up from 'Router' to the project root, then into 'Fonts'
 
 const fonts = {
   Roboto: {
     normal: path.join(fontsPath, 'Roboto-Regular.ttf'),
-    bold: path.join(fontsPath, 'Roboto-Medium.ttf'), // Or Roboto-Bold.ttf, if you have it
+    bold: path.join(fontsPath, 'Roboto-Medium.ttf'),
     italics: path.join(fontsPath, 'Roboto-Italic.ttf'),
-    bolditalics: path.join(fontsPath, 'Roboto-MediumItalic.ttf') // Or Roboto-BoldItalic.ttf
+    bolditalics: path.join(fontsPath, 'Roboto-MediumItalic.ttf')
   }
-  // You can add more fonts here if needed
 };
 
-const printer = new PdfPrinter(fonts); // Pass the font configuration
+const printer = new PdfPrinter(fonts);
 const router = express.Router();
 
 router.post("/generate-receipt", async (req, res) => {
