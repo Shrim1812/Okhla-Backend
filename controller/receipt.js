@@ -1,53 +1,17 @@
+// controller/receipt.js (your existing file with the DEBUG logs and font setup)
 import express from "express";
-import fs from "fs"; // MAKE SURE THIS IS PRESENT
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import PdfPrinter from "pdfmake"; // KEEP THIS IMPORT
 
-import PdfPrinter from "pdfmake";
-import { poolPromise } from "../db.js";
+// Assuming poolPromise is still needed here or imported
+import { poolPromise } from "../db.js"; // Adjust path as needed
 
-// Resolve __dirname in ES Module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// --- START DEBUGGING LOGS ---
-console.log('DEBUG: Current __filename:', __filename);
-console.log('DEBUG: Current __dirname:', __dirname);
-
-// Path calculation based on previous Render logs:
-// Your file is at /opt/render/project/src/controller/receipt.js
-// Your Fonts folder is likely at /opt/render/project/src/Fonts/
-const fontsPath = path.join(__dirname, '..', 'Fonts');
-
-console.log('DEBUG: Calculated fontsPath:', fontsPath);
-
-try {
-    const isFontsPathDirectory = fs.existsSync(fontsPath) && fs.lstatSync(fontsPath).isDirectory();
-    console.log(`DEBUG: Is '${fontsPath}' a directory?`, isFontsPathDirectory);
-
-    if (isFontsPathDirectory) {
-        const filesInFontsDir = fs.readdirSync(fontsPath);
-        console.log('DEBUG: Files found in fonts directory:', filesInFontsDir);
-
-        const requiredFonts = ['Roboto-Regular.ttf', 'Roboto-Medium.ttf', 'Roboto-Italic.ttf', 'Roboto-MediumItalic.ttf'];
-        requiredFonts.forEach(fontFile => {
-            const fontFilePath = path.join(fontsPath, fontFile);
-            const exists = fs.existsSync(fontFilePath);
-            console.log(`DEBUG: Font file '${fontFile}' exists at '${fontFilePath}'?`, exists);
-            if (!exists) {
-                console.error(`DEBUG: !!! CRITICAL: ${fontFile} NOT FOUND at expected path!`);
-            } else {
-                console.log(`DEBUG: 👍 ${fontFile} found!`);
-            }
-        });
-    } else {
-        console.error('DEBUG: !!! CRITICAL: Fonts directory DOES NOT EXIST or is not a directory at:', fontsPath);
-    }
-} catch (err) {
-    console.error('DEBUG: !!! CRITICAL: Error accessing fonts directory (in debug block):', err.message);
-}
-// --- END DEBUGGING LOGS ---
-
+// ... (All your DEBUG logs for fontsPath here - keep them for final verification) ...
 
 const fonts = {
   Roboto: {
@@ -58,7 +22,8 @@ const fonts = {
   }
 };
 
-const printer = new PdfPrinter(fonts);
+const printer = new PdfPrinter(fonts); // THIS IS YOUR CONFIGURED PRINTER
+
 const router = express.Router();
 
 router.post("/generate-receipt", async (req, res) => {
