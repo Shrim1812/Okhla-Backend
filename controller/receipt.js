@@ -9,7 +9,7 @@ import { poolPromise } from "../db.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const printer = new PdfPrinter(); // No fonts setup
+const printer = new PdfPrinter(); // No custom font setup
 const router = express.Router();
 
 router.post("/generate-receipt", async (req, res) => {
@@ -62,7 +62,7 @@ router.post("/generate-receipt", async (req, res) => {
       ]);
     });
 
-    // PDF layout
+    // PDF layout with no custom font
     const docDefinition = {
       content: [
         { text: "Yearly Payment Summary Report", style: "header" },
