@@ -162,15 +162,23 @@ export const getSummaryByCompanyYear = async (req, res) => {
 
 export const addYear = async (req, res) => {
     const { yearRange, payments, registrations } = req.body;
-    const { Printer, Provider, MachineDealer, Publisher } = payments;
+
+    const {
+        Printer,
+        Provider,
+        MachineDealer,
+        Publisher,
+        PaperSupplier // ✅ New field from payments
+    } = payments;
+
     const {
         Printer: PrinterRegistration,
         Provider: ProviderRegistration,
         MachineDealer: MachineDealerRegistration,
-        Publisher: PublisherRegistration
+        Publisher: PublisherRegistration,
+        PaperSupplier: PaperSupplierRegistration // ✅ New field from registrations
     } = registrations;
-
-    try {
+     try {
         const pool = await poolPromise;
 
         console.log('Received:', yearRange, payments, registrations);
@@ -181,10 +189,12 @@ export const addYear = async (req, res) => {
             .input('ProviderPayment', sql.Decimal(10, 2), Provider)
             .input('MachineDealerPayment', sql.Decimal(10, 2), MachineDealer)
             .input('PublisherPayment', sql.Decimal(10, 2), Publisher)
+            .input('PaperSupplierPayment', sql.Decimal(10, 2), PaperSupplier) // ✅ Added
             .input('PrinterRegistration', sql.Decimal(10, 2), PrinterRegistration)
             .input('ProviderRegistration', sql.Decimal(10, 2), ProviderRegistration)
             .input('MachineDealerRegistration', sql.Decimal(10, 2), MachineDealerRegistration)
             .input('PublisherRegistration', sql.Decimal(10, 2), PublisherRegistration)
+            .input('PaperSupplierRegistration', sql.Decimal(10, 2), PaperSupplierRegistration) // ✅ Added
             .query(`
                 INSERT INTO TotalPayments (
                     YearRange,
@@ -192,10 +202,12 @@ export const addYear = async (req, res) => {
                     ProviderPayment,
                     MachineDealerPayment,
                     PublisherPayment,
+                    PaperSupplier, -- ✅ Added
                     PrinterRegistration,
                     ProviderRegistration,
                     MachineDealerRegistration,
-                    PublisherRegistration
+                    PublisherRegistration,
+                    PaperSupplierRegistration -- ✅ Added
                 )
                 VALUES (
                     @YearRange,
@@ -203,14 +215,16 @@ export const addYear = async (req, res) => {
                     @ProviderPayment,
                     @MachineDealerPayment,
                     @PublisherPayment,
+                    @@PaperSupplier, -- ✅ Added
                     @PrinterRegistration,
                     @ProviderRegistration,
                     @MachineDealerRegistration,
-                    @PublisherRegistration
+                    @PublisherRegistration,
+                    @PaperSupplierRegistration -- ✅ Added
                 )
             `);
 
-        res.status(200).json({ message: '✅ Yearly payments and registrations saved successfully!' });
+        res.status(200).json({ message: '✅ Yearly payments and registrations saved successfully with Paper Supplier!' });
     } catch (error) {
         console.error('❌ Error adding payments & registrations:', error.stack || error);
         res.status(500).json({ error: error.message || 'Internal Server Error' });
@@ -235,6 +249,7 @@ export const getYear = async (req, res) => {
         res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
 }
+
 export const getMemberAndPaymentById = async (req, res) => {
     const memberId = req.params.id;
     const paymentYear = req.params.year;
@@ -302,6 +317,10 @@ export const getMemberAndPaymentById = async (req, res) => {
                 case 'Publisher':
                     paymentColumn = 'PublisherPayment';
                     break;
+               case 'PaperSupplier':
+                     paymentColumn = 'PaperSupplierPayment ';
+                     break;
+
                 default:
                     return res.status(400).json({ error: '❌ Unknown Member Type: ' + memberType });
             }
@@ -434,20 +453,27 @@ export const getRegistrationFee = async (req, res) => {
             case 'Publisher':
                 regFeeColumn = 'PublisherRegistration';
                 break;
+            case 'PaperSupplier':
+            regFeeColumn = 'PaperSupplierRegistration';
+                break;
+
             default:
                 return res.status(400).json({ error: `Unknown category: ${category}` });
         }
-
+            console.log("🔍 Category:", category);
+             console.log("🧾 Column selected:", regFeeColumn);
+            
+      
         const feeResult = await pool.request()
             .query(`
         SELECT TOP 1 
-          ${regFeeColumn} AS RegistrationFee
+          ${regFeeColumn} AS RegistrationFee,YearRange
         FROM TotalPayments
         WHERE ${regFeeColumn} IS NOT NULL
         ORDER BY 
           CAST(LEFT(YearRange, 4) AS INT) DESC
       `);
-
+    //    console.log(yearRange);
         const feeRow = feeResult.recordset[0];
         if (!feeRow || feeRow.RegistrationFee == null) {
             return res.status(404).json({ error: "Registration fee not found for this category" });
@@ -494,7 +520,7 @@ export const getMemberAndPaymentSummaryById = async (req, res) => {
     } catch (err) {
         console.error("❌ Error:", err.message);
         res.status(500).json({ success: false, error: err.message });
-    }
+}
 };
 
 
@@ -548,6 +574,10 @@ export const ExtraDetail = async (req, res) => {
                 case 'MachineDealers':
                     regFeeColumn = 'MachineDealerRegistration'; break;
                 case 'Publisher': regFeeColumn = 'PublisherRegistration'; break;
+                case 'PaperSupplier':
+                 regFeeColumn = 'PaperSupplierRegistration';
+                  break;
+
                 default:
                     return res.status(400).json({ error: `❌ Unknown category: ${category}` });
             }
