@@ -1,6 +1,6 @@
 import express from "express";
 import fs from "fs"; // Keep for debugging
-import path, { dirname } = "path";
+import { dirname } from "path";
 import { fileURLToPath } from "url";
 import PdfPrinter from "pdfmake";
 import { poolPromise } from "../db.js";
