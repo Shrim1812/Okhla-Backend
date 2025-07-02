@@ -78,7 +78,7 @@ export const createUser = async (req, res) => {
             .input("Name", sql.NVarChar, name)
             .input("Email", sql.NVarChar, email)
             .input("Password", sql.NVarChar, hashedPassword)
-            .input("Role", sql.NVarChar, role)
+            .input("Role", sql.NVarChar, role.charAt(0).toUpperCase() + role.slice(1).toLowerCase())
             .query(`
                 INSERT INTO Users (Name, Email, Password, Role) 
                 VALUES (@Name, @Email, @Password, @Role)
