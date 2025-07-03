@@ -101,12 +101,6 @@ if (result.recordset.length === 0) {
 if (result.recordset.length === 0) {
     return res.status(404).send("Receipt not found in either table.");
 }
-
-const data = result.recordset[0];
-        if (result.recordset.length === 0) {
-            return res.status(404).send("Receipt not found for the provided receipt number.");
-        }
-
         const data = result.recordset[0];
 
         // Helper function to convert number to words (simple example, you might need a more robust library)
