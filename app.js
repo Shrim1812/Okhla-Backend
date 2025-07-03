@@ -224,7 +224,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                         },
                         {
                             width: '*',
-                            text:'Date: '
+                            text:'Date: ',
                             text: `${new Date(data.ReceiptDate).toLocaleDateString("en-IN")}`, // Dynamic Data [cite: 9]
                             fontSize: 10,
                             alignment: 'right'
@@ -272,11 +272,6 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                 }
             ],
             styles: {
-                oppaHeader: {
-                    fontSize: 36,
-                    bold: true,
-                    color: '#000000' // Or the color of the OPPA text if you can define it
-                },
                 associationName: {
                     fontSize: 10,
                     bold: false,
@@ -284,7 +279,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                     margin: [0, 5, 0, 0]
                 },
                 receiptVoucherHeader: {
-                    fontSize: 16,
+                    fontSize: 14,
                     bold: true,
                     decoration: 'underline'
                 }
