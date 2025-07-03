@@ -130,7 +130,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
         {
             image: LOGO_PATH,
             width: 150,
-            alignment: 'right',
+            alignment: 'LEFT',
             margin: [0, 0, 0, 10]
         },
         {
@@ -143,13 +143,13 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
         {
             text: '67, DSIDC Sheds, Okhla Industrial Area',
             alignment: 'left',
-            fontSize: 10,
+            fontSize: 8,
             margin: [0, 0, 0, 2]
         },
         {
             text: 'Phase I, New Delhi 110 020',
             alignment: 'left',
-            fontSize: 10,
+            fontSize: 8,
             margin: [0, 0, 0, 2]
         },
         {
@@ -157,13 +157,13 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                 {
                     width: '*',
                     text: 'Section 8 Registered Company Under Companies Act, 2013',
-                    fontSize: 10,
+                    fontSize: 8,
                     alignment: 'right'
                 },
                 {
                     width: '*',
                     text: 'CIN: U93090DL2018NPL341412',
-                    fontSize: 10,
+                    fontSize: 8,
                     alignment: 'right'
                 }
             ],
@@ -174,13 +174,13 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                 {
                     width: '*',
                     text: 'PAN: AACCO8151H',
-                    fontSize: 10,
+                    fontSize: 8,
                     alignment: 'right'
                 },
                 {
                     width: '*',
                     text: '12A & 80G Exempted under Income Tax Act, 1961',
-                    fontSize: 10,
+                    fontSize: 8,
                     alignment: 'right'
                 }
             ],
