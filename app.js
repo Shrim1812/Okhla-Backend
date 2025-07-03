@@ -218,12 +218,13 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                         },
                         {
                             width: 'auto',
-                            text: 'Date: ', // [cite: 9]
+                            text: '  ', // [cite: 9]
                             fontSize: 10,
                             bold: true
                         },
                         {
                             width: '*',
+                            text:'Date: '
                             text: `${new Date(data.ReceiptDate).toLocaleDateString("en-IN")}`, // Dynamic Data [cite: 9]
                             fontSize: 10,
                             alignment: 'right'
@@ -237,7 +238,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                         { text: `${data.CompanyName || data.MemberName}`, bold: true }, // Dynamic Data for M/s [cite: 10]
                         ' the sum of rupees ', // [cite: 10]
                         { text: `${amountToWords(data.ReceivedAmount)}`, bold: true }, // Dynamic Amount in words [cite: 10]
-                        'by', { text: `${data.PaymentType}`, bold: true },
+                        'by  ', { text: `${data.PaymentType}`, bold: true },
                         ' by Cheque No. ', // [cite: 10]
                         { text: `${data.ChequeNumber || '-'}`, bold: true }, // Dynamic Cheque No. [cite: 10]
                         ' Date ', // [cite: 10]
@@ -252,7 +253,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                 },
                 {
                     text: `₹ ${data.ReceivedAmount.toFixed(2)}`, // Dynamic Amount [cite: 11]
-                    alignment: 'right',
+                    alignment: 'left',
                     fontSize: 12,
                     bold: true,
                     margin: [0, 0, 0, 50]
