@@ -235,12 +235,13 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                         { text: `${data.CompanyName || data.MemberName}`, bold: true }, // Dynamic Data for M/s [cite: 10]
                         ' the sum of rupees ', // [cite: 10]
                         { text: `${amountToWords(data.ReceivedAmount)}`, bold: true }, // Dynamic Amount in words [cite: 10]
+                        'by' { text: `${data.PaymentType}`,
                         ' by Cheque No. ', // [cite: 10]
-                        { text: `${data.ChequeNumber || [cite_start]'-'}`, bold: true }, // Dynamic Cheque No. [cite: 10]
+                        { text: `${data.ChequeNumber || '-'}`, bold: true }, // Dynamic Cheque No. [cite: 10]
                         ' Date ', // [cite: 10]
                         { text: `${data.ChequeReceiveOn ? new Date(data.ChequeReceiveOn).toLocaleDateString("en-IN") : "-"}`, bold: true }, // Dynamic Cheque Date [cite: 10]
                         ' drawn on ', // [cite: 10]
-                        { text: `${data.BankName || [cite_start]'-'}`, bold: true }, // Dynamic Bank Name [cite: 10]
+                        { text: `${data.BankName || '-'}`, bold: true }, // Dynamic Bank Name [cite: 10]
                         ' on account of Okhla Printers & Providers Association.' [cite_start]// [cite: 10]
                     ],
                     fontSize: 10,
