@@ -131,7 +131,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                     // OPPA Logo
                     image: LOGO_PATH, // [cite: 1]
                     width: 150, // Adjust width as needed
-                    alignment: 'center',
+                    alignment: 'right',
                     margin: [0, 0, 0, 10]
                 },
                 {
@@ -154,7 +154,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                     text: 'Phase I, New Delhi 110 020', // [cite: 3]
                     alignment: 'left',
                     fontSize: 10,
-                    margin: [0, 0, 0, 10]
+                    margin: [0, 0, 0, 2]
                 },
                 {
                     // Company and Registration Details
@@ -162,13 +162,13 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                         {
                             width: '*',
                             text: 'Section 8 Registered Company Under Companies Act, 2013', // [cite: 4]
-                            fontSize: 8,
+                            fontSize: 10,
                             alignment: 'right'
                         },
                         {
                             width: '*',
                             text: 'CIN: U93090DL2018NPL341412', // [cite: 4]
-                            fontSize: 8,
+                            fontSize: 10,
                             alignment: 'right'
                         }
                     ],
@@ -179,13 +179,13 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                         {
                             width: '*',
                             text: 'PAN: AACCO8151H', // [cite: 5]
-                            fontSize: 8,
+                            fontSize: 10,
                             alignment: 'right'
                         },
                         {
                             width: '*',
                             text: '12A & 80G Exempted under Income Tax Act, 1961', // [cite: 6]
-                            fontSize: 8,
+                            fontSize: 10,
                             alignment: 'right'
                         }
                     ],
@@ -217,15 +217,8 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                             fontSize: 10
                         },
                         {
-                            width: 'auto',
-                            text: '  ', // [cite: 9]
-                            fontSize: 10,
-                            bold: true
-                        },
-                        {
                             width: '*',
-                            text:'Date: ',
-                            text: `${new Date(data.ReceiptDate).toLocaleDateString("en-IN")}`, // Dynamic Data [cite: 9]
+                            text:`Date: ${new Date(data.ReceiptDate).toLocaleDateString("en-IN")}`
                             fontSize: 10,
                             alignment: 'right'
                         }
@@ -238,8 +231,15 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                         { text: `${data.CompanyName || data.MemberName}`, bold: true }, // Dynamic Data for M/s [cite: 10]
                         ' the sum of rupees ', // [cite: 10]
                         { text: `${amountToWords(data.ReceivedAmount)}`, bold: true }, // Dynamic Amount in words [cite: 10]
-                        'by  ', { text: `${data.PaymentType}`, bold: true },
-                        ' by Cheque No. ', // [cite: 10]
+                        ' By Mode:', { text: `${data.PaymentType}`, bold: true },
+                        ],
+                    fontSize: 10,
+                    lineHeight: 1.5,
+                    margin: [0, 0, 0, 10]
+                }
+                    if (data.payment =='Cheque')
+                {     text: [  
+                        {' By Cheque No. ', // [cite: 10]
                         { text: `${data.ChequeNumber || '-'}`, bold: true }, // Dynamic Cheque No. [cite: 10]
                         ' Date ', // [cite: 10]
                         { text: `${data.ChequeReceiveOn ? new Date(data.ChequeReceiveOn).toLocaleDateString("en-IN") : "-"}`, bold: true }, // Dynamic Cheque Date [cite: 10]
@@ -249,7 +249,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                     ],
                     fontSize: 10,
                     lineHeight: 1.5,
-                    margin: [0, 0, 0, 20]
+                    margin: [0, 0, 0, 10]
                 },
                 {
                     text: `₹ ${data.ReceivedAmount.toFixed(2)}`, // Dynamic Amount [cite: 11]
