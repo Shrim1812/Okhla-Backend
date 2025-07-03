@@ -125,169 +125,171 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
         };
 
 
-        const docDefinition = {
-            content: [
+    const docDefinition = {
+    content: [
+        {
+            image: LOGO_PATH,
+            width: 150,
+            alignment: 'right',
+            margin: [0, 0, 0, 10]
+        },
+        {
+            stack: [
+                { text: 'OKHLA PRINTERS & PROVIDERS ASSOCIATION', style: 'associationName' }
+            ],
+            alignment: 'left',
+            margin: [0, 0, 0, 5]
+        },
+        {
+            text: '67, DSIDC Sheds, Okhla Industrial Area',
+            alignment: 'left',
+            fontSize: 10,
+            margin: [0, 0, 0, 2]
+        },
+        {
+            text: 'Phase I, New Delhi 110 020',
+            alignment: 'left',
+            fontSize: 10,
+            margin: [0, 0, 0, 2]
+        },
+        {
+            columns: [
                 {
-                    // OPPA Logo
-                    image: LOGO_PATH, // [cite: 1]
-                    width: 150, // Adjust width as needed
-                    alignment: 'right',
-                    margin: [0, 0, 0, 10]
-                },
-                {
-                    // OPPA and OKHLA PRINTERS & PROVIDERS ASSOCIATION text
-                    stack: [
-                        //{ text: 'OPPA', style: 'oppaHeader' }, // [cite: 1]
-                        { text: 'OKHLA PRINTERS & PROVIDERS ASSOCIATION', style: 'associationName' } // [cite: 2]
-                    ],
-                    alignment: 'left',
-                    margin: [0, 0, 0, 5]
-                },
-                {
-                    // Address
-                    text: '67, DSIDC Sheds, Okhla Industrial Area', // [cite: 3]
-                    alignment: 'left',
+                    width: '*',
+                    text: 'Section 8 Registered Company Under Companies Act, 2013',
                     fontSize: 10,
-                    margin: [0, 0, 0, 2]
+                    alignment: 'right'
                 },
                 {
-                    text: 'Phase I, New Delhi 110 020', // [cite: 3]
-                    alignment: 'left',
+                    width: '*',
+                    text: 'CIN: U93090DL2018NPL341412',
                     fontSize: 10,
-                    margin: [0, 0, 0, 2]
-                },
-                {
-                    // Company and Registration Details
-                    columns: [
-                        {
-                            width: '*',
-                            text: 'Section 8 Registered Company Under Companies Act, 2013', // [cite: 4]
-                            fontSize: 10,
-                            alignment: 'right'
-                        },
-                        {
-                            width: '*',
-                            text: 'CIN: U93090DL2018NPL341412', // [cite: 4]
-                            fontSize: 10,
-                            alignment: 'right'
-                        }
-                    ],
-                    margin: [0, 0, 0, 2]
-                },
-                {
-                    columns: [
-                        {
-                            width: '*',
-                            text: 'PAN: AACCO8151H', // [cite: 5]
-                            fontSize: 10,
-                            alignment: 'right'
-                        },
-                        {
-                            width: '*',
-                            text: '12A & 80G Exempted under Income Tax Act, 1961', // [cite: 6]
-                            fontSize: 10,
-                            alignment: 'right'
-                        }
-                    ],
-                    margin: [0, 0, 0, 2]
-                },
-                {
-                    text: 'Vide URN:AACCO8151HE2024', // [cite: 6]
-                    fontSize: 8,
-                    alignment: 'right',
-                    margin: [0, 0, 0, 20]
-                },
-                {
-                    text: 'RECEIPT VOUCHER', // [cite: 7]
-                    alignment: 'center',
-                    style: 'receiptVoucherHeader',
-                    margin: [0, 0, 0, 20]
-                },
-                {
-                    columns: [
-                        {
-                            width: 'auto',
-                            text: 'No.: ', // [cite: 8]
-                            fontSize: 10,
-                            bold: true
-                        },
-                        {
-                            width: '*',
-                            text: `${data.ReceiptNumber}`, // Dynamic Data [cite: 8]
-                            fontSize: 10
-                        },
-                        {
-                            width: '*',
-                            text:`Date: ${new Date(data.ReceiptDate).toLocaleDateString("en-IN")}`
-                            fontSize: 10,
-                            alignment: 'right'
-                        }
-                    ],
-                    margin: [0, 0, 0, 10]
-                },
-                {
-                    text: [
-                        'Received with thanks from M/s ', // [cite: 10]
-                        { text: `${data.CompanyName || data.MemberName}`, bold: true }, // Dynamic Data for M/s [cite: 10]
-                        ' the sum of rupees ', // [cite: 10]
-                        { text: `${amountToWords(data.ReceivedAmount)}`, bold: true }, // Dynamic Amount in words [cite: 10]
-                        ' By Mode:', { text: `${data.PaymentType}`, bold: true },
-                        ],
-                    fontSize: 10,
-                    lineHeight: 1.5,
-                    margin: [0, 0, 0, 10]
-                }
-                    if (data.payment =='Cheque')
-                {     text: [  
-                        {' By Cheque No. ', // [cite: 10]
-                        { text: `${data.ChequeNumber || '-'}`, bold: true }, // Dynamic Cheque No. [cite: 10]
-                        ' Date ', // [cite: 10]
-                        { text: `${data.ChequeReceiveOn ? new Date(data.ChequeReceiveOn).toLocaleDateString("en-IN") : "-"}`, bold: true }, // Dynamic Cheque Date [cite: 10]
-                        ' drawn on ', // [cite: 10]
-                        { text: `${data.BankName || '-'}`, bold: true }, // Dynamic Bank Name [cite: 10]
-                        ' on account of Okhla Printers & Providers Association.'// [cite: 10]
-                    ],
-                    fontSize: 10,
-                    lineHeight: 1.5,
-                    margin: [0, 0, 0, 10]
-                },
-                {
-                    text: `₹ ${data.ReceivedAmount.toFixed(2)}`, // Dynamic Amount [cite: 11]
-                    alignment: 'left',
-                    fontSize: 12,
-                    bold: true,
-                    margin: [0, 0, 0, 50]
-                },
-                {
-                    text: 'For Okhla Printers & Providers Association', // [cite: 12]
-                    alignment: 'right',
-                    fontSize: 10,
-                    margin: [0, 0, 0, 50]
-                },
-                {
-                    text: 'Authorised Signatory', // [cite: 13]
-                    alignment: 'right',
-                    fontSize: 10,
-                    bold: true
+                    alignment: 'right'
                 }
             ],
-            styles: {
-                associationName: {
+            margin: [0, 0, 0, 2]
+        },
+        {
+            columns: [
+                {
+                    width: '*',
+                    text: 'PAN: AACCO8151H',
                     fontSize: 10,
-                    bold: false,
-                    color: '#000000',
-                    margin: [0, 5, 0, 0]
+                    alignment: 'right'
                 },
-                receiptVoucherHeader: {
-                    fontSize: 14,
-                    bold: true,
-                    decoration: 'underline'
+                {
+                    width: '*',
+                    text: '12A & 80G Exempted under Income Tax Act, 1961',
+                    fontSize: 10,
+                    alignment: 'right'
                 }
-            },
-            defaultStyle: {
-                font: 'Roboto'
-            }
-        };
+            ],
+            margin: [0, 0, 0, 2]
+        },
+        {
+            text: 'Vide URN:AACCO8151HE2024',
+            fontSize: 8,
+            alignment: 'right',
+            margin: [0, 0, 0, 20]
+        },
+        {
+            text: 'RECEIPT VOUCHER',
+            alignment: 'center',
+            style: 'receiptVoucherHeader',
+            margin: [0, 0, 0, 20]
+        },
+        {
+            columns: [
+                {
+                    width: 'auto',
+                    text: 'No.: ',
+                    fontSize: 10,
+                    bold: true
+                },
+                {
+                    width: '*',
+                    text: `${data.ReceiptNumber}`,
+                    fontSize: 10
+                },
+                {
+                    width: '*',
+                    text: `Date: ${new Date(data.ReceiptDate).toLocaleDateString("en-IN")}`,
+                    fontSize: 10,
+                    alignment: 'right'
+                }
+            ],
+            margin: [0, 0, 0, 10]
+        },
+        {
+            text: [
+                'Received with thanks from M/s ',
+                { text: `${data.CompanyName || data.MemberName}`, bold: true },
+                ' the sum of rupees ',
+                { text: `${amountToWords(data.ReceivedAmount)}`, bold: true },
+                ' By Mode: ',
+                { text: `${data.PaymentType}`, bold: true }
+            ],
+            fontSize: 10,
+            lineHeight: 1.5,
+            margin: [0, 0, 0, 10]
+        },
+
+        // 🔽 Cheque block: conditionally added
+        ...(data.PaymentType === 'Cheque'
+            ? [{
+                text: [
+                    'By Cheque No. ',
+                    { text: `${data.ChequeNumber || '-'}`, bold: true },
+                    ' Date ',
+                    { text: `${data.ChequeReceiveOn ? new Date(data.ChequeReceiveOn).toLocaleDateString("en-IN") : "-"}`, bold: true },
+                    ' drawn on ',
+                    { text: `${data.BankName || '-'}`, bold: true },
+                    ' on account of Okhla Printers & Providers Association.'
+                ],
+                fontSize: 10,
+                lineHeight: 1.5,
+                margin: [0, 0, 0, 10]
+            }]
+            : []),
+
+        {
+            text: `₹ ${data.ReceivedAmount.toFixed(2)}`,
+            alignment: 'left',
+            fontSize: 12,
+            bold: true,
+            margin: [0, 0, 0, 50]
+        },
+        {
+            text: 'For Okhla Printers & Providers Association',
+            alignment: 'right',
+            fontSize: 10,
+            margin: [0, 0, 0, 50]
+        },
+        {
+            text: 'Authorised Signatory',
+            alignment: 'right',
+            fontSize: 10,
+            bold: true
+        }
+    ],
+    styles: {
+        associationName: {
+            fontSize: 10,
+            bold: false,
+            color: '#000000',
+            margin: [0, 5, 0, 0]
+        },
+        receiptVoucherHeader: {
+            fontSize: 14,
+            bold: true,
+            decoration: 'underline'
+        }
+    },
+    defaultStyle: {
+        font: 'Roboto'
+    }
+};
+
 
         const pdfDoc = printer.createPdfKitDocument(docDefinition);
 
