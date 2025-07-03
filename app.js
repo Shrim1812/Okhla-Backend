@@ -127,7 +127,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
             content: [
                 {
                     // OPPA Logo
-                    [cite_start]image: LOGO_PATH, // [cite: 1]
+                    image: LOGO_PATH, // [cite: 1]
                     width: 150, // Adjust width as needed
                     alignment: 'center',
                     margin: [0, 0, 0, 10]
@@ -135,21 +135,21 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                 {
                     // OPPA and OKHLA PRINTERS & PROVIDERS ASSOCIATION text
                     stack: [
-                        [cite_start]{ text: 'OPPA', style: 'oppaHeader' }, // [cite: 1]
-                        [cite_start]{ text: 'OKHLA PRINTERS & PROVIDERS ASSOCIATION', style: 'associationName' } // [cite: 2]
+                        { text: 'OPPA', style: 'oppaHeader' }, // [cite: 1]
+                        { text: 'OKHLA PRINTERS & PROVIDERS ASSOCIATION', style: 'associationName' } // [cite: 2]
                     ],
                     alignment: 'center',
                     margin: [0, 0, 0, 5]
                 },
                 {
                     // Address
-                    [cite_start]text: '67, DSIDC Sheds, Okhla Industrial Area', // [cite: 3]
+                    text: '67, DSIDC Sheds, Okhla Industrial Area', // [cite: 3]
                     alignment: 'center',
                     fontSize: 10,
                     margin: [0, 0, 0, 2]
                 },
                 {
-                    [cite_start]text: 'Phase I, New Delhi 110 020', // [cite: 3]
+                    text: 'Phase I, New Delhi 110 020', // [cite: 3]
                     alignment: 'center',
                     fontSize: 10,
                     margin: [0, 0, 0, 10]
@@ -159,13 +159,13 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                     columns: [
                         {
                             width: '*',
-                            [cite_start]text: 'Section 8 Registered Company Under Companies Act, 2013', // [cite: 4]
+                            text: 'Section 8 Registered Company Under Companies Act, 2013', // [cite: 4]
                             fontSize: 8,
                             alignment: 'left'
                         },
                         {
                             width: '*',
-                            [cite_start]text: 'CIN: U93090DL2018NPL341412', // [cite: 4]
+                            text: 'CIN: U93090DL2018NPL341412', // [cite: 4]
                             fontSize: 8,
                             alignment: 'right'
                         }
@@ -176,13 +176,13 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                     columns: [
                         {
                             width: '*',
-                            [cite_start]text: 'PAN: AACCO8151H', // [cite: 5]
+                            text: 'PAN: AACCO8151H', // [cite: 5]
                             fontSize: 8,
                             alignment: 'left'
                         },
                         {
                             width: '*',
-                            [cite_start]text: '12A & 80G Exempted under Income Tax Act, 1961', // [cite: 6]
+                            text: '12A & 80G Exempted under Income Tax Act, 1961', // [cite: 6]
                             fontSize: 8,
                             alignment: 'right'
                         }
@@ -190,13 +190,13 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                     margin: [0, 0, 0, 2]
                 },
                 {
-                    [cite_start]text: 'Vide URN:AACCO8151HE2024', // [cite: 6]
+                    text: 'Vide URN:AACCO8151HE2024', // [cite: 6]
                     fontSize: 8,
                     alignment: 'right',
                     margin: [0, 0, 0, 20]
                 },
                 {
-                    [cite_start]text: 'RECEIPT VOUCHER', // [cite: 7]
+                    text: 'RECEIPT VOUCHER', // [cite: 7]
                     alignment: 'center',
                     style: 'receiptVoucherHeader',
                     margin: [0, 0, 0, 20]
@@ -205,24 +205,24 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                     columns: [
                         {
                             width: 'auto',
-                            [cite_start]text: 'No.: ', // [cite: 8]
+                            text: 'No.: ', // [cite: 8]
                             fontSize: 10,
                             bold: true
                         },
                         {
                             width: '*',
-                            [cite_start]text: `${data.ReceiptNumber}`, // Dynamic Data [cite: 8]
+                            text: `${data.ReceiptNumber}`, // Dynamic Data [cite: 8]
                             fontSize: 10
                         },
                         {
                             width: 'auto',
-                            [cite_start]text: 'Date: ', // [cite: 9]
+                            text: 'Date: ', // [cite: 9]
                             fontSize: 10,
                             bold: true
                         },
                         {
                             width: '*',
-                            [cite_start]text: `${new Date(data.ReceiptDate).toLocaleDateString("en-IN")}`, // Dynamic Data [cite: 9]
+                            text: `${new Date(data.ReceiptDate).toLocaleDateString("en-IN")}`, // Dynamic Data [cite: 9]
                             fontSize: 10,
                             alignment: 'right'
                         }
@@ -231,15 +231,15 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                 },
                 {
                     text: [
-                        [cite_start]'Received with thanks from M/s ', // [cite: 10]
-                        [cite_start]{ text: `${data.CompanyName || data.MemberName}`, bold: true }, // Dynamic Data for M/s [cite: 10]
-                        [cite_start]' the sum of rupees ', // [cite: 10]
-                        [cite_start]{ text: `${amountToWords(data.ReceivedAmount)}`, bold: true }, // Dynamic Amount in words [cite: 10]
-                        [cite_start]' by Cheque No. ', // [cite: 10]
+                        'Received with thanks from M/s ', // [cite: 10]
+                        { text: `${data.CompanyName || data.MemberName}`, bold: true }, // Dynamic Data for M/s [cite: 10]
+                        ' the sum of rupees ', // [cite: 10]
+                        { text: `${amountToWords(data.ReceivedAmount)}`, bold: true }, // Dynamic Amount in words [cite: 10]
+                        ' by Cheque No. ', // [cite: 10]
                         { text: `${data.ChequeNumber || [cite_start]'-'}`, bold: true }, // Dynamic Cheque No. [cite: 10]
-                        [cite_start]' Date ', // [cite: 10]
-                        [cite_start]{ text: `${data.ChequeReceiveOn ? new Date(data.ChequeReceiveOn).toLocaleDateString("en-IN") : "-"}`, bold: true }, // Dynamic Cheque Date [cite: 10]
-                        [cite_start]' drawn on ', // [cite: 10]
+                        ' Date ', // [cite: 10]
+                        { text: `${data.ChequeReceiveOn ? new Date(data.ChequeReceiveOn).toLocaleDateString("en-IN") : "-"}`, bold: true }, // Dynamic Cheque Date [cite: 10]
+                        ' drawn on ', // [cite: 10]
                         { text: `${data.BankName || [cite_start]'-'}`, bold: true }, // Dynamic Bank Name [cite: 10]
                         ' on account of Okhla Printers & Providers Association.' [cite_start]// [cite: 10]
                     ],
@@ -248,20 +248,20 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                     margin: [0, 0, 0, 20]
                 },
                 {
-                    [cite_start]text: `₹ ${data.ReceivedAmount.toFixed(2)}`, // Dynamic Amount [cite: 11]
+                    text: `₹ ${data.ReceivedAmount.toFixed(2)}`, // Dynamic Amount [cite: 11]
                     alignment: 'right',
                     fontSize: 12,
                     bold: true,
                     margin: [0, 0, 0, 50]
                 },
                 {
-                    [cite_start]text: 'For Okhla Printers & Providers Association', // [cite: 12]
+                    text: 'For Okhla Printers & Providers Association', // [cite: 12]
                     alignment: 'right',
                     fontSize: 10,
                     margin: [0, 0, 0, 50]
                 },
                 {
-                    [cite_start]text: 'Authorised Signatory', // [cite: 13]
+                    text: 'Authorised Signatory', // [cite: 13]
                     alignment: 'right',
                     fontSize: 10,
                     bold: true
