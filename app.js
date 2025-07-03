@@ -47,28 +47,62 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
             return res.status(400).send("Missing receiptNo in query parameters.");
         }
 
-        const pool = await poolPromise;
-        const result = await pool.request()
-            .input("receiptNo", receiptNo)
-            .query(`
-                SELECT
-                  yps.ReceiptNumber,
-                  yps.ReceiptDate,
-                  m.CompanyName,
-                  m.MemberName,
-                  yps.AmountPaid AS ReceivedAmount,
-                  yps.ChequeNumber,
-                  yps.ChequeReceiveOn,
-                  yps.PaymentType,
-                  yps.BankName -- Assuming you have a BankName in your table
-                FROM
-                  YearlyPaymentSummary yps
-                JOIN
-                  Members m ON yps.MembershipID = m.MembershipID
-                WHERE
-                  yps.ReceiptNumber = @receiptNo
-            `);
+      const pool = await poolPromise;
 
+// First: Try from YearlyPaymentSummary
+let result = await pool.request()
+    .input("receiptNo", receiptNo)
+    .query(`
+        SELECT
+          yps.ReceiptNumber,
+          yps.ReceiptDate,
+          m.CompanyName,
+          m.MemberName,
+          yps.AmountPaid AS ReceivedAmount,
+          yps.ChequeNumber,
+          yps.ChequeReceiveOn,
+          yps.PaymentType,
+          yps.BankName,
+          'yearly' AS Source
+        FROM
+          YearlyPaymentSummary yps
+        JOIN
+          Members m ON yps.MembershipID = m.MembershipID
+        WHERE
+          yps.ReceiptNumber = @receiptNo
+    `);
+
+// If not found, try from OtherPayments
+if (result.recordset.length === 0) {
+    result = await pool.request()
+        .input("receiptNo", receiptNo)
+        .query(`
+            SELECT
+              op.ReceiptNumber,
+              op.CreatedAt AS ReceiptDate,
+              m.CompanyName,
+              m.MemberName,
+              op.Amount AS ReceivedAmount,
+              op.ChequeNumber,
+              op.ChequeReceiveOn,
+              op.PaymentMode AS PaymentType,
+              NULL AS BankName,
+              'other' AS Source
+            FROM
+              OtherPayments op
+            JOIN
+              Members m ON op.MembershipID = m.MembershipID
+            WHERE
+              op.PaymentCategory IN ('Other', 'Registration')
+              AND op.ReceiptNumber = @receiptNo
+        `);
+}
+
+if (result.recordset.length === 0) {
+    return res.status(404).send("Receipt not found in either table.");
+}
+
+const data = result.recordset[0];
         if (result.recordset.length === 0) {
             return res.status(404).send("Receipt not found for the provided receipt number.");
         }
