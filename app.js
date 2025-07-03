@@ -1,12 +1,13 @@
-// app.js - Modified PDF generation route
-import express from "express";
+// app.js - Modified PDF generation routeimport express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { poolPromise } from "./db.js";
 import MemberRouter from "./Router/MemberForm.js";
 import receiptRoutes, { printer } from './controller/receipt.js';
-import path from "path"; // Import path module
-import { fileURLToPath } from "url"; // Import fileURLToPath
+import path from "path";
+import fs from "fs"; // ✅ ADD THIS LINE
+import { fileURLToPath } from "url";
+
 
 const app = express();
 
