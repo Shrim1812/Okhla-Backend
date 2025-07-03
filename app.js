@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename);
 // Path to your logo image
 // Assuming your logo is in a 'public' or 'images' folder at the root of your project
 // Adjust this path based on where your 'oppa-logo.png' is actually located.
-const LOGO_PATH = path.join(__dirname,'images', 'oppalogo.png'); // Example path
+//const LOGO_PATH = path.join(__dirname,'images', 'oppalogo.png'); // Example path
 
 // Middleware and other configurations remain the same
 app.use('/receipt', receiptRoutes);
@@ -33,6 +33,13 @@ app.use("/Ohkla", MemberRouter);
 // PDF generation route
 app.get("/Ohkla/report/receipt", async (req, res) => {
     try {
+        // Move LOGO_PATH definition inside the route handler
+        const LOGO_PATH = path.join(__dirname,'images', 'oppalogo.png'); 
+        // It's good practice to add a check if the logo file actually exists
+        if (!fs.existsSync(LOGO_PATH)) { // You'll need to import 'fs' here as well
+            console.error(`Error: Logo file not found at ${LOGO_PATH}`);
+            return res.status(500).send("Logo file missing. Cannot generate PDF.");
+        }
         const { receiptNo } = req.query;
         if (!receiptNo) {
             return res.status(400).send("Missing receiptNo in query parameters.");
