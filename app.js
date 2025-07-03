@@ -235,7 +235,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                         { text: `${data.CompanyName || data.MemberName}`, bold: true }, // Dynamic Data for M/s [cite: 10]
                         ' the sum of rupees ', // [cite: 10]
                         { text: `${amountToWords(data.ReceivedAmount)}`, bold: true }, // Dynamic Amount in words [cite: 10]
-                        'by', { text: `${data.PaymentType}`,
+                        'by', { text: `${data.PaymentType}`, bold: true },
                         ' by Cheque No. ', // [cite: 10]
                         { text: `${data.ChequeNumber || '-'}`, bold: true }, // Dynamic Cheque No. [cite: 10]
                         ' Date ', // [cite: 10]
