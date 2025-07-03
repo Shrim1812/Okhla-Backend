@@ -244,7 +244,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                         { text: `${data.ChequeReceiveOn ? new Date(data.ChequeReceiveOn).toLocaleDateString("en-IN") : "-"}`, bold: true }, // Dynamic Cheque Date [cite: 10]
                         ' drawn on ', // [cite: 10]
                         { text: `${data.BankName || '-'}`, bold: true }, // Dynamic Bank Name [cite: 10]
-                        ' on account of Okhla Printers & Providers Association.' [cite_start]// [cite: 10]
+                        ' on account of Okhla Printers & Providers Association.'// [cite: 10]
                     ],
                     fontSize: 10,
                     lineHeight: 1.5,
