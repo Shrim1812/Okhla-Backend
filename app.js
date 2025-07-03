@@ -137,22 +137,22 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                 {
                     // OPPA and OKHLA PRINTERS & PROVIDERS ASSOCIATION text
                     stack: [
-                        { text: 'OPPA', style: 'oppaHeader' }, // [cite: 1]
+                        //{ text: 'OPPA', style: 'oppaHeader' }, // [cite: 1]
                         { text: 'OKHLA PRINTERS & PROVIDERS ASSOCIATION', style: 'associationName' } // [cite: 2]
                     ],
-                    alignment: 'center',
+                    alignment: 'left',
                     margin: [0, 0, 0, 5]
                 },
                 {
                     // Address
                     text: '67, DSIDC Sheds, Okhla Industrial Area', // [cite: 3]
-                    alignment: 'center',
+                    alignment: 'left',
                     fontSize: 10,
                     margin: [0, 0, 0, 2]
                 },
                 {
                     text: 'Phase I, New Delhi 110 020', // [cite: 3]
-                    alignment: 'center',
+                    alignment: 'left',
                     fontSize: 10,
                     margin: [0, 0, 0, 10]
                 },
@@ -163,7 +163,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                             width: '*',
                             text: 'Section 8 Registered Company Under Companies Act, 2013', // [cite: 4]
                             fontSize: 8,
-                            alignment: 'left'
+                            alignment: 'right'
                         },
                         {
                             width: '*',
@@ -180,7 +180,7 @@ app.get("/Ohkla/report/receipt", async (req, res) => {
                             width: '*',
                             text: 'PAN: AACCO8151H', // [cite: 5]
                             fontSize: 8,
-                            alignment: 'left'
+                            alignment: 'right'
                         },
                         {
                             width: '*',
