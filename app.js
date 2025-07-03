@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename);
 // Path to your logo image
 // Assuming your logo is in a 'public' or 'images' folder at the root of your project
 // Adjust this path based on where your 'oppa-logo.png' is actually located.
-const LOGO_PATH = path.join(__dirname, 'public', 'images', 'oppa-logo.png'); // Example path
+const LOGO_PATH = path.join(__dirname, 'public', 'images', 'oppalogo.png'); // Example path
 
 // Middleware and other configurations remain the same
 app.use('/receipt', receiptRoutes);
