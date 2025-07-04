@@ -454,7 +454,7 @@ export const addNewYearAndInsertForAllMember = async (req, res) => {
  
       console.log(payment);
       console.log(registration);
-   const totalAmount = payment + registration;
+   const totalAmount = payment;
       const amountPaid = 0;
       const dueAmount = totalAmount;
 
