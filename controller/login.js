@@ -13,7 +13,7 @@ import express from "express";
     const checkUser = await pool
       .request()
       .input("email", sql.VarChar, email)
-      .query("SELECT * FROM Users1 WHERE email = @email");
+      .query("SELECT * FROM Users WHERE email = @email");
 
     if (checkUser.recordset.length > 0) {
       return res.status(400).json({ success: false, message: "User already exists with this email" });
@@ -27,7 +27,7 @@ import express from "express";
       .input("email", sql.VarChar, email)
       .input("contactNumber", sql.VarChar, contactNumber)
       .query(
-        "INSERT INTO Users1 (username, password, email, contactNumber) VALUES (@username, @password, @email, @contactNumber)"
+        "INSERT INTO Users (username, password, email, contactNumber) VALUES (@username, @password, @email, @contactNumber)"
       );
 
     res.status(201).json({ success: true, message: "User registered successfully" });
@@ -50,7 +50,7 @@ export const login = async (req, res) => {
       .request()
       .input("email", sql.VarChar, email)
       .input("password", sql.VarChar, password)
-      .query("SELECT * FROM Users1 WHERE email = @email AND password = @password");
+      .query("SELECT * FROM Users WHERE email = @email AND password = @password");
 
     if (result.recordset.length > 0) {
       const user = result.recordset[0]; // ✅ fetch user data
