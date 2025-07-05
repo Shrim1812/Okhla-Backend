@@ -12,7 +12,7 @@ export const sendOTP = async (req, res) => {
         // Check if email exists
         const result = await pool.request()
             .input("Email", sql.NVarChar, email)
-            .query("SELECT * FROM Users1 WHERE Email = @Email");
+            .query("SELECT * FROM Users WHERE Email = @Email");
         if (result.recordset.length === 0) {
             return res.status(404).json({ success: false, message: "Email not found" });
         }
@@ -55,7 +55,7 @@ export const resetPassword = async (req, res) => {
             .input("Email", sql.NVarChar, email)
             .input("Password", sql.NVarChar, hashedPassword)
             .query(`
-                UPDATE Users1 SET Password = @Password WHERE Email = @Email
+                UPDATE Users SET Password = @Password WHERE Email = @Email
             `);
         res.json({ success: true, message: "Password updated successfully" });
     } catch (err) {
