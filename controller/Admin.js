@@ -3,7 +3,6 @@
     export const loginUser = async (req, res) => {
         const { email, password } = req.body;
         console.log(req.body);
-
         try {
             const pool = await poolPromise;
             const result = await pool.request()
@@ -79,12 +78,16 @@ export const createUser = async (req, res) => {
             .input("Email", sql.NVarChar, email)
             .input("Password", sql.NVarChar, hashedPassword)
             .input("Role", sql.NVarChar, role.charAt(0).toUpperCase() + role.slice(1).toLowerCase())
+			
+			.input("EmailType", sql.NVarChar, emailType)
+            .input("SenderEmail", sql.NVarChar, senderEmail)
+            .input("SenderPassword", sql.NVarChar, senderPassword)
             .query(`
-                INSERT INTO Users (Name, Email, Password, Role) 
-                VALUES (@Name, @Email, @Password, @Role)
+                INSERT INTO Users (Name, Email, Password, Role, EmailType, SenderEmail, SenderPassword)
+                VALUES (@Name, @Email, @Password, @Role, @EmailType, @SenderEmail, @SenderPassword)
             `);
 
-        res.json(`{ success: true, message: ${role} created successfully }`);
+        res.json({ success: true, message: `${role} created successfully` });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -123,7 +126,10 @@ export const getAllUsers = async (req, res) => {
                 Name, 
                 Email, 
                 Role, 
-                Status AS [Status]  -- enforce case
+	Status AS [Status],  -- enforce case
+                EmailType,
+                SenderEmail,
+                SenderPassword
             FROM Users
         `);
         res.json(result.recordset);
@@ -134,9 +140,9 @@ export const getAllUsers = async (req, res) => {
 };
 
 export const updateUserByAdmin = async (req, res) => {
-    const { userId, name, email, role, status } = req.body;
+    const { userId, name, email, role, status, emailType, senderEmail, senderPassword  } = req.body;
 
-    try {
+    try {//emailType, senderEmail, senderPassword 
         const pool = await poolPromise; // ✅ get actual pool from poolPromise
 
         await pool.request()
@@ -145,12 +151,18 @@ export const updateUserByAdmin = async (req, res) => {
             .input("Email", sql.NVarChar(100), email)
             .input("Role", sql.NVarChar(50), role)
             .input("Status", sql.NVarChar(10), status)
+			.input("EmailType", sql.NVarChar(50), emailType) // ✅ Length added
+            .input("SenderEmail", sql.NVarChar(100), senderEmail)
+            .input("SenderPassword", sql.NVarChar(100), senderPassword)																													   
             .query(`
                 UPDATE Users
                 SET Name = @Name,
                     Email = @Email,
                     Role = @Role,
-                    Status = @Status
+                    Status = @Status,
+                    EmailType = @EmailType,
+                    SenderEmail = @SenderEmail,
+                    SenderPassword = @SenderPassword
                 WHERE UserID = @UserID
             `);
 
@@ -161,7 +173,16 @@ export const updateUserByAdmin = async (req, res) => {
     }
 };
 
-
+  export const OtherPaymentsD = async (req, res) => {
+  try {
+    const pool = await poolPromise; // ✅ Get DB pool
+    const result = await pool.request().query("SELECT * FROM OtherPayments"); // ✅ Use request
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("Error fetching payments:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 export const changePassword = async (req, res) => {
     const { email, newPassword } = req.body;
 
