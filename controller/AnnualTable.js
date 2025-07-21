@@ -219,6 +219,7 @@ export const getReceiptOfPayment = async (req, res) => {
 
         const result = await pool.request().query(`
             SELECT 
+	    	r.ReceiptID,
                 r.ReceiptNumber,
                 r.ReceiptDate,
                 m.CompanyName,
