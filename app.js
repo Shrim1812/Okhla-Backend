@@ -20,7 +20,7 @@ const __dirname = path.dirname(__filename);
 app.use('/receipt', receiptRoutes);
 app.use(bodyParser.json());
 const corsOptions = {
-    origin: '*',
+    origin: 'https://www.oppa.co.in',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 };
